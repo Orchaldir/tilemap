@@ -20,7 +20,7 @@ impl Tilemap2d {
         Self::new(size, tiles)
     }
 
-    /// Returns a tilemap with the desired [`Tile`]s.
+    /// Returns a tilemap with the desired [`Tile`]s, if the number of tiles match the [`size`](crate::math::size2d::Size2d).
     pub fn new(size: Size2d, tiles: Vec<Tile>) -> Result<Tilemap2d> {
         if size.count() == 0 {
             bail!("The tilemap has a size of 0!");
@@ -61,10 +61,7 @@ mod tests {
         let tilemap = Tilemap2d::default(size, Tile::Empty).unwrap();
 
         assert_eq!(tilemap.get_size(), size);
-
-        for i in 0..6 {
-            assert_eq!(tilemap.get_tile(i), Tile::Empty);
-        }
+        assert_eq!(tilemap.get_tiles(), &vec![Tile::Empty; 6]);
     }
 
     #[test]
@@ -74,7 +71,10 @@ mod tests {
         let tilemap = Tilemap2d::new(size, tiles.clone()).unwrap();
 
         assert_eq!(tilemap.get_size(), size);
-        assert_eq!(tilemap.get_tiles(), &tiles);
+
+        for i in 0..6 {
+            assert_eq!(tilemap.get_tile(i), tiles[i]);
+        }
     }
 
     #[test]

@@ -2,4 +2,5 @@
 
 members = [
     "tilemap",
+    "tilemap_svg",
 ]

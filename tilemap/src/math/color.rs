@@ -38,6 +38,8 @@ impl Color {
     /// assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
     /// ```
     pub fn from_hex(hex_code: &str) -> Result<Color> {
+        let hex_code = hex_code.trim();
+
         if !hex_code.starts_with('#') {
             bail!("'{}' needs to start with # to be a color", hex_code);
         } else if hex_code.len() != 7 {
@@ -134,5 +136,11 @@ mod tests {
     fn test_from_hex_ignore_case() {
         assert_eq!(Color::from_hex("#FFA500").unwrap(), ORANGE);
         assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
+    }
+
+    #[test]
+    fn test_from_hex_with_white_space() {
+        assert_eq!(Color::from_hex(" #FFA500").unwrap(), ORANGE);
+        assert_eq!(Color::from_hex("#FFA500 ").unwrap(), ORANGE);
     }
 }

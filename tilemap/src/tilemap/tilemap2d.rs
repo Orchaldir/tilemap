@@ -46,7 +46,7 @@ impl Tilemap2d {
     }
 
     pub fn set_tile(&mut self, index: usize, tile: Tile) {
-        self.tiles[index] = tile;
+        //self.tiles[index] = tile;
     }
 }
 

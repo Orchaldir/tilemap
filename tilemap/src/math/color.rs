@@ -30,10 +30,10 @@ impl Color {
         }
     }
 
-    /// Converts a string to a color, if possible:
+    /// Converts a [hex triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet) to a color, if possible:
     ///
     /// ```
-    /// use tilemap::math::color::{Color, ORANGE};
+    ///# use tilemap::math::color::{Color, ORANGE};
     /// assert_eq!(Color::from_hex("#FFA500").unwrap(), ORANGE);
     /// assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
     /// ```
@@ -60,6 +60,16 @@ impl Color {
         ))?;
 
         Ok(Color::from_rgb(r, g, b))
+    }
+
+    /// Returns the [hex triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet) representing the color:
+    ///
+    /// ```
+    ///# use tilemap::math::color::{Color, ORANGE};
+    /// assert_eq!(ORANGE.to_hex(), "#FFA500");
+    /// ```
+    pub fn to_hex(&self) -> String {
+        format!("#{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
 
     /// Returns the red component.

@@ -34,9 +34,10 @@ impl Color {
     ///
     /// ```
     /// use tilemap::math::color::{Color, ORANGE};
-    /// assert_eq!(Color::convert("#FFA500").unwrap(), ORANGE);
+    /// assert_eq!(Color::from_hex("#FFA500").unwrap(), ORANGE);
+    /// assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
     /// ```
-    pub fn convert(hex_code: &str) -> Result<Color> {
+    pub fn from_hex(hex_code: &str) -> Result<Color> {
         if !hex_code.starts_with('#') {
             bail!("'{}' needs to start with # to be a color", hex_code);
         } else if hex_code.len() != 7 {
@@ -112,26 +113,26 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_from_empty_string() {
-        assert!(Color::convert("").is_err());
+    fn test_from_hex_empty_string() {
+        assert!(Color::from_hex("").is_err());
     }
 
     #[test]
-    fn test_from_string_invalid_start() {
-        assert!(Color::convert("FFA500").is_err());
+    fn test_from_hex_invalid_start() {
+        assert!(Color::from_hex("FFA500").is_err());
     }
 
     #[test]
-    fn test_from_string_part() {
-        assert!(Color::convert("#").is_err());
-        assert!(Color::convert("#FF").is_err());
-        assert!(Color::convert("#FFA5").is_err());
-        assert!(Color::convert("#FFA50").is_err());
+    fn test_from_hex_part() {
+        assert!(Color::from_hex("#").is_err());
+        assert!(Color::from_hex("#FF").is_err());
+        assert!(Color::from_hex("#FFA5").is_err());
+        assert!(Color::from_hex("#FFA50").is_err());
     }
 
     #[test]
-    fn test_from_string_ignore_case() {
-        assert_eq!(Color::convert("#FFA500").unwrap(), ORANGE);
-        assert_eq!(Color::convert("#ffa500").unwrap(), ORANGE);
+    fn test_from_hex_ignore_case() {
+        assert_eq!(Color::from_hex("#FFA500").unwrap(), ORANGE);
+        assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
     }
 }

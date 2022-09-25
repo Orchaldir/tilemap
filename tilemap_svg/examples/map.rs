@@ -24,7 +24,7 @@ fn main() {
     }
 
     let mut builder = SvgBuilder::new(tiles * tile_size);
-    let top_down = TopDownRenderer::new(100);
+    let top_down = TopDownRenderer::new(tile_size);
 
     top_down.render(&tilemap, &mut builder);
 

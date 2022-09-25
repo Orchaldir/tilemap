@@ -1,4 +1,4 @@
-use crate::math::color::{BLACK, CYAN};
+use crate::math::color::{Color, BLACK, CYAN};
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::tilemap::tile::Tile;
@@ -10,10 +10,8 @@ pub struct TopDownRenderer {
 }
 
 impl TopDownRenderer {
-    pub fn new(tile_size: u32) -> Self {
-        TopDownRenderer {
-            tile_size: Size2d::square(tile_size),
-        }
+    pub fn new(tile_size: Size2d) -> Self {
+        TopDownRenderer { tile_size }
     }
 
     pub fn get_tile_size(&self) -> Size2d {
@@ -34,8 +32,8 @@ impl TopDownRenderer {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => renderer.render_rectangle(x, y, self.tile_size, CYAN),
-                    Tile::Solid(_id) => renderer.render_rectangle(x, y, self.tile_size, BLACK),
+                    Tile::Floor(_id) => self.render_tile(renderer, x, y, CYAN),
+                    Tile::Solid(_id) => self.render_tile(renderer, x, y, BLACK),
                 }
 
                 x += self.tile_size.width();
@@ -44,5 +42,9 @@ impl TopDownRenderer {
 
             y += self.tile_size.height();
         }
+    }
+
+    fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {
+        renderer.render_rectangle(x, y, self.tile_size, color)
     }
 }

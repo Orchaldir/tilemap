@@ -30,13 +30,16 @@ impl Color {
         }
     }
 
-    /// Converts a string to a color, if possible:
+    /// Converts a [hex triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet) to a color, if possible:
     ///
     /// ```
-    /// use tilemap::math::color::{Color, ORANGE};
-    /// assert_eq!(Color::convert("#FFA500").unwrap(), ORANGE);
+    ///# use tilemap::math::color::{Color, ORANGE};
+    /// assert_eq!(Color::from_hex("#FFA500").unwrap(), ORANGE);
+    /// assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
     /// ```
-    pub fn convert(hex_code: &str) -> Result<Color> {
+    pub fn from_hex(hex_code: &str) -> Result<Color> {
+        let hex_code = hex_code.trim();
+
         if !hex_code.starts_with('#') {
             bail!("'{}' needs to start with # to be a color", hex_code);
         } else if hex_code.len() != 7 {
@@ -57,6 +60,16 @@ impl Color {
         ))?;
 
         Ok(Color::from_rgb(r, g, b))
+    }
+
+    /// Returns the [hex triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet) representing the color:
+    ///
+    /// ```
+    ///# use tilemap::math::color::{Color, ORANGE};
+    /// assert_eq!(ORANGE.to_hex(), "#FFA500");
+    /// ```
+    pub fn to_hex(&self) -> String {
+        format!("#{:02X}{:02X}{:02X}", self.r, self.g, self.b)
     }
 
     /// Returns the red component.
@@ -112,26 +125,32 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_from_empty_string() {
-        assert!(Color::convert("").is_err());
+    fn test_from_hex_empty_string() {
+        assert!(Color::from_hex("").is_err());
     }
 
     #[test]
-    fn test_from_string_invalid_start() {
-        assert!(Color::convert("FFA500").is_err());
+    fn test_from_hex_invalid_start() {
+        assert!(Color::from_hex("FFA500").is_err());
     }
 
     #[test]
-    fn test_from_string_part() {
-        assert!(Color::convert("#").is_err());
-        assert!(Color::convert("#FF").is_err());
-        assert!(Color::convert("#FFA5").is_err());
-        assert!(Color::convert("#FFA50").is_err());
+    fn test_from_hex_part() {
+        assert!(Color::from_hex("#").is_err());
+        assert!(Color::from_hex("#FF").is_err());
+        assert!(Color::from_hex("#FFA5").is_err());
+        assert!(Color::from_hex("#FFA50").is_err());
     }
 
     #[test]
-    fn test_from_string_ignore_case() {
-        assert_eq!(Color::convert("#FFA500").unwrap(), ORANGE);
-        assert_eq!(Color::convert("#ffa500").unwrap(), ORANGE);
+    fn test_from_hex_ignore_case() {
+        assert_eq!(Color::from_hex("#FFA500").unwrap(), ORANGE);
+        assert_eq!(Color::from_hex("#ffa500").unwrap(), ORANGE);
+    }
+
+    #[test]
+    fn test_from_hex_with_white_space() {
+        assert_eq!(Color::from_hex(" #FFA500").unwrap(), ORANGE);
+        assert_eq!(Color::from_hex("#FFA500 ").unwrap(), ORANGE);
     }
 }

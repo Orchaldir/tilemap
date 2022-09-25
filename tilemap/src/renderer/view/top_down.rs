@@ -5,13 +5,13 @@ use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
 /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with a top-down view.
-pub struct TopDownRenderer {
+pub struct TopDownView {
     tile_size: Size2d,
 }
 
-impl TopDownRenderer {
+impl TopDownView {
     pub fn new(tile_size: Size2d) -> Self {
-        TopDownRenderer { tile_size }
+        TopDownView { tile_size }
     }
 
     pub fn get_tile_size(&self) -> Size2d {

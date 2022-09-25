@@ -2,7 +2,7 @@ extern crate tilemap;
 extern crate tilemap_svg;
 
 use tilemap::math::size2d::Size2d;
-use tilemap::renderer::top_down::TopDownRenderer;
+use tilemap::renderer::view::top_down::TopDownView;
 use tilemap::tilemap::tile::Tile;
 use tilemap::tilemap::tilemap2d::Tilemap2d;
 use tilemap_svg::renderer::SvgBuilder;
@@ -24,10 +24,10 @@ fn main() {
     }
 
     let mut builder = SvgBuilder::new(tiles * tile_size);
-    let top_down = TopDownRenderer::new(tile_size);
+    let top_down = TopDownView::new(tile_size);
 
     top_down.render(&tilemap, &mut builder);
 
     let svg = builder.finish();
-    svg.save("test.svg");
+    svg.save("test.svg").unwrap();
 }

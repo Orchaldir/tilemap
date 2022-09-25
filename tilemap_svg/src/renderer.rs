@@ -1,3 +1,6 @@
+use anyhow::Result;
+use std::fs::File;
+use std::io::Write;
 use tilemap::math::color::Color;
 use tilemap::math::size2d::Size2d;
 
@@ -10,6 +13,16 @@ pub struct Svg {
 impl Svg {
     pub fn export(&self) -> String {
         self.lines.join("\n")
+    }
+
+    pub fn save(&self, path: &str) -> Result<()> {
+        let mut output = File::create(path)?;
+
+        for line in &self.lines {
+            writeln!(&mut output, "{}", line)?;
+        }
+
+        Ok(())
     }
 }
 

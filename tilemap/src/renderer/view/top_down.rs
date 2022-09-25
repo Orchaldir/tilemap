@@ -1,6 +1,7 @@
-use crate::math::color::{Color, BLACK, CYAN};
+use crate::math::color::Color;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
+use crate::renderer::style::Style;
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -19,7 +20,7 @@ impl TopDownView {
     }
 
     /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with a specific [`renderer`](crate::port::renderer::Renderer).
-    pub fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer) {
+    pub fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
         let mut y = 0;
         let mut index = 0;
@@ -32,8 +33,8 @@ impl TopDownView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, x, y, CYAN),
-                    Tile::Solid(_id) => self.render_tile(renderer, x, y, BLACK),
+                    Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
+                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_solid_color()),
                 }
 
                 x += self.tile_size.width();

@@ -15,10 +15,6 @@ impl TopDownView {
         TopDownView { tile_size }
     }
 
-    pub fn get_tile_size(&self) -> Size2d {
-        self.tile_size
-    }
-
     /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with a specific [`renderer`](crate::port::renderer::Renderer).
     pub fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();

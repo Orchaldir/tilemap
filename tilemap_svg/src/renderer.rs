@@ -16,6 +16,7 @@ impl Svg {
         self.lines.join("\n")
     }
 
+    /// Save the svg to a file.
     pub fn save(&self, path: &str) -> Result<()> {
         let mut output = File::create(path)?;
 

@@ -26,9 +26,10 @@ fn main() {
         );
     }
 
-    let mut builder = SvgBuilder::new(tiles * tile_size);
-    let top_down = TopDownView::new(tile_size);
-    let three_four = ThreeFourView::new(tile_size, 200);
+    let height = 200;
+    let svg_size = tiles * tile_size + Size2d::new(0, height);
+    let mut builder = SvgBuilder::new(svg_size);
+    let three_four = ThreeFourView::new(tile_size, height);
     let style = Style::new_simple(CYAN, RED, GREEN);
 
     three_four.render(&tilemap, &mut builder, &style);

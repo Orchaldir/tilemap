@@ -36,9 +36,11 @@ impl ThreeFourView {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
                     Tile::Solid(_id) => {
-                        renderer.render_rectangle(x, y - self.tile_height, front, *style.get_front_color());
-                        self.render_tile(renderer, x, y, *style.get_top_color());
-                    },
+                        let top_y = y - self.tile_height;
+                        let front_y = top_y + self.tile_size.height();
+                        renderer.render_rectangle(x, front_y, front, *style.get_front_color());
+                        self.render_tile(renderer, x, top_y, *style.get_top_color());
+                    }
                 }
 
                 x += self.tile_size.width();

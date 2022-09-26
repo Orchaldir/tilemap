@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Add, Mul};
 
 #[svgbobdoc::transform]
 /// Defines a grid of tiles in 2 dimensions.
@@ -114,6 +114,23 @@ impl Size2d {
     /// ```
     pub fn convert_x_y(&self, x: u32, y: u32) -> usize {
         (y * self.width + x) as usize
+    }
+}
+
+/// Adds a [`Size2d`] with another.
+///
+/// ```
+///# use tilemap::math::size2d::Size2d;
+/// let a = Size2d::new(10, 30);
+/// let b = Size2d::new(2, 5);
+///
+/// assert_eq!(a + b, Size2d::new(12, 35));
+/// ```
+impl Add<Size2d> for Size2d {
+    type Output = Self;
+
+    fn add(self, other: Size2d) -> Size2d {
+        Size2d::new(self.width + other.width, self.height + other.height)
     }
 }
 

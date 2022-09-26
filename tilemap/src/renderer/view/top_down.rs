@@ -30,7 +30,7 @@ impl TopDownView {
                 match tile {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_solid_color()),
+                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_top_color()),
                 }
 
                 x += self.tile_size.width();

@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::Write;
 use tilemap::math::color::Color;
 use tilemap::math::size2d::Size2d;
+use tilemap::port::renderer::Renderer;
 
 /// A valid [SVG](https://en.wikipedia.org/wiki/Scalable_Vector_Graphics).
 #[derive(Debug, PartialEq, Eq)]
@@ -15,6 +16,7 @@ impl Svg {
         self.lines.join("\n")
     }
 
+    /// Save the svg to a file.
     pub fn save(&self, path: &str) -> Result<()> {
         let mut output = File::create(path)?;
 
@@ -45,7 +47,15 @@ impl SvgBuilder {
         Self { lines }
     }
 
-    pub fn rectangle(&mut self, x: u32, y: u32, size: Size2d, color: Color) {
+    pub fn finish(mut self) -> Svg {
+        self.lines.push("</svg>".to_string());
+
+        Svg { lines: self.lines }
+    }
+}
+
+impl Renderer for SvgBuilder {
+    fn render_rectangle(&mut self, x: u32, y: u32, size: Size2d, color: Color) {
         self.lines.push(format!(
             "  <rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\"/>",
             x,
@@ -54,12 +64,6 @@ impl SvgBuilder {
             size.height(),
             color.to_hex(),
         ));
-    }
-
-    pub fn finish(mut self) -> Svg {
-        self.lines.push("</svg>".to_string());
-
-        Svg { lines: self.lines }
     }
 }
 
@@ -81,8 +85,8 @@ mod tests {
     #[test]
     fn test_rectangles() {
         let mut builder = SvgBuilder::new(Size2d::new(100, 150));
-        builder.rectangle(10, 20, Size2d::new(30, 40), ORANGE);
-        builder.rectangle(50, 70, Size2d::new(35, 45), PINK);
+        builder.render_rectangle(10, 20, Size2d::new(30, 40), ORANGE);
+        builder.render_rectangle(50, 70, Size2d::new(35, 45), PINK);
         let svg = builder.finish();
 
         let result = "<svg viewBox=\"0 0 100 150\" xmlns=\"http://www.w3.org/2000/svg\">

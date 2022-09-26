@@ -22,7 +22,8 @@ impl ThreeFourView {
     /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with a specific [`renderer`](crate::port::renderer::Renderer).
     pub fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let mut y = 0;
+        let front = Size2d::new(self.tile_size.width(), self.tile_height);
+        let mut y = self.tile_height;
         let mut index = 0;
 
         for _y in 0..tiles.height() {
@@ -34,7 +35,10 @@ impl ThreeFourView {
                 match tile {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_top_color()),
+                    Tile::Solid(_id) => {
+                        renderer.render_rectangle(x, y - self.tile_height, front, *style.get_front_color());
+                        self.render_tile(renderer, x, y, *style.get_top_color());
+                    },
                 }
 
                 x += self.tile_size.width();

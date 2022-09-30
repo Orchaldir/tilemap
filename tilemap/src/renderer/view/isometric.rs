@@ -20,12 +20,13 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let front = Size2d::new(self.tile_size.width(), self.tile_height);
-        let mut y = self.tile_height;
+        let mut start_x = self.delta.width() * tiles.height();
+        let mut start_y = self.tile_height;
         let mut index = 0;
 
         for _y in 0..tiles.height() {
-            let mut x = 0;
+            let mut y = start_y;
+            let mut x = start_x;
 
             for _x in 0..tiles.width() {
                 let tile = tilemap.get_tile(index);
@@ -33,19 +34,18 @@ impl View for IsometricView {
                 match tile {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
-                        let top_y = y - self.tile_height;
-                        let front_y = top_y + self.tile_size.height();
-                        renderer.render_rectangle(x, front_y, front, *style.get_front_color());
-                        self.render_tile(renderer, x, top_y, *style.get_top_color());
-                    }
+                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_top_color()),
                 }
 
-                x += self.tile_size.width();
+                // Move the point of the next tile in this row row
+                x += self.delta.width();
+                y += self.delta.height();
                 index += 1;
             }
 
-            y += self.tile_size.height();
+            // Move the start point of the next row
+            start_x -= self.delta.width();
+            start_y += self.delta.height();
         }
     }
 }

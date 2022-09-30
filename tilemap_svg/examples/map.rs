@@ -4,6 +4,7 @@ extern crate tilemap_svg;
 use tilemap::math::color::{CYAN, GREEN, RED, YELLOW};
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::Style;
+use tilemap::renderer::view::isometric::IsometricView;
 use tilemap::renderer::view::three_four::ThreeFourView;
 use tilemap::renderer::view::top_down::TopDownView;
 use tilemap::renderer::view::View;
@@ -29,9 +30,11 @@ fn main() {
     let tile_size = Size2d::square(100);
     let height = 200;
 
+    let isometric = IsometricView::new(tile_size);
     let three_four = ThreeFourView::new(tile_size, height);
     let top_down = TopDownView::new(tile_size);
 
+    render(&isometric, &tilemap, "test_isometric.svg");
     render(&three_four, &tilemap, "test_34.svg");
     render(&top_down, &tilemap, "test_top.svg");
 }

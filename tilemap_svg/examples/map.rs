@@ -27,10 +27,11 @@ fn main() {
         );
     }
 
-    let tile_size = Size2d::square(100);
+    let tile_side = 100;
+    let tile_size = Size2d::square(tile_side);
     let height = 200;
 
-    let isometric = IsometricView::new(tile_size);
+    let isometric = IsometricView::new(tile_side, height);
     let three_four = ThreeFourView::new(tile_size, height);
     let top_down = TopDownView::new(tile_size);
 

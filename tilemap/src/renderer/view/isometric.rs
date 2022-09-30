@@ -1,4 +1,5 @@
 use crate::math::color::Color;
+use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
@@ -8,9 +9,8 @@ use crate::tilemap::tilemap2d::Tilemap2d;
 
 /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an isometric view.
 pub struct IsometricView {
-    tile_size: Size2d,
-    tile_height: u32,
     delta: Size2d,
+    tile_height: u32,
 }
 
 impl View for IsometricView {
@@ -20,32 +20,33 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let mut start_x = self.delta.width() * tiles.height();
-        let mut start_y = self.tile_height;
+        let mut start = Point2d::new(
+            (self.delta.width() * tiles.height()) as i32,
+            self.tile_height as i32,
+        );
         let mut index = 0;
 
         for _y in 0..tiles.height() {
-            let mut y = start_y;
-            let mut x = start_x;
+            let mut point = start;
 
             for _x in 0..tiles.width() {
                 let tile = tilemap.get_tile(index);
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_top_color()),
+                    Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
+                    Tile::Solid(_id) => self.render_tile(renderer, point, *style.get_top_color()),
                 }
 
                 // Move the point of the next tile in this row row
-                x += self.delta.width();
-                y += self.delta.height();
+                point.x += self.delta.width() as i32;
+                point.y += self.delta.height() as i32;
                 index += 1;
             }
 
             // Move the start point of the next row
-            start_x -= self.delta.width();
-            start_y += self.delta.height();
+            start.x -= self.delta.width() as i32;
+            start.y += self.delta.height() as i32;
         }
     }
 }
@@ -53,9 +54,8 @@ impl View for IsometricView {
 impl IsometricView {
     pub fn new(tile_size: u32, tile_height: u32) -> Self {
         IsometricView {
-            tile_size: Size2d::square(tile_size),
-            tile_height,
             delta: Self::calculate_delta(tile_size),
+            tile_height,
         }
     }
 
@@ -75,8 +75,17 @@ impl IsometricView {
         )
     }
 
-    fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {
-        renderer.render_rectangle(x, y, self.tile_size, color)
+    fn render_tile(&self, renderer: &mut dyn Renderer, top: Point2d, color: Color) {
+        let left = Point2d::new(
+            top.x - self.delta.width() as i32,
+            top.y + self.delta.height() as i32,
+        );
+        let right = Point2d::new(
+            top.x + self.delta.width() as i32,
+            top.y + self.delta.height() as i32,
+        );
+        let bottom = Point2d::new(top.x, top.y + self.delta.height() as i32 * 2);
+        renderer.render_transformed_rectangle(top, left, bottom, right, color)
     }
 }
 

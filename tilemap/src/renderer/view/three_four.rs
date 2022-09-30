@@ -2,6 +2,7 @@ use crate::math::color::Color;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
+use crate::renderer::view::View;
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -9,6 +10,12 @@ use crate::tilemap::tilemap2d::Tilemap2d;
 pub struct ThreeFourView {
     tile_size: Size2d,
     tile_height: u32,
+}
+
+impl View for ThreeFourView {
+    fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
+        tilemap.get_size() * self.tile_size + Size2d::new(0, self.tile_height)
+    }
 }
 
 impl ThreeFourView {
@@ -53,5 +60,18 @@ impl ThreeFourView {
 
     fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {
         renderer.render_rectangle(x, y, self.tile_size, color)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_size() {
+        let tilemap = Tilemap2d::default(Size2d::new(2, 3), Tile::Empty).unwrap();
+        let viewer = ThreeFourView::new(Size2d::new(15, 25), 35);
+
+        assert_eq!(viewer.get_size(&tilemap), Size2d::new(30, 110));
     }
 }

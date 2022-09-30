@@ -15,15 +15,8 @@ impl View for TopDownView {
     fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
         tilemap.get_size() * self.tile_size
     }
-}
 
-impl TopDownView {
-    pub fn new(tile_size: Size2d) -> Self {
-        TopDownView { tile_size }
-    }
-
-    /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with a specific [`renderer`](crate::port::renderer::Renderer).
-    pub fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
         let mut y = 0;
         let mut index = 0;
@@ -46,6 +39,12 @@ impl TopDownView {
 
             y += self.tile_size.height();
         }
+    }
+}
+
+impl TopDownView {
+    pub fn new(tile_size: Size2d) -> Self {
+        TopDownView { tile_size }
     }
 
     fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {

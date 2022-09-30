@@ -16,18 +16,8 @@ impl View for ThreeFourView {
     fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
         tilemap.get_size() * self.tile_size + Size2d::new(0, self.tile_height)
     }
-}
 
-impl ThreeFourView {
-    pub fn new(tile_size: Size2d, tile_height: u32) -> Self {
-        ThreeFourView {
-            tile_size,
-            tile_height,
-        }
-    }
-
-    /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with a specific [`renderer`](crate::port::renderer::Renderer).
-    pub fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
         let front = Size2d::new(self.tile_size.width(), self.tile_height);
         let mut y = self.tile_height;
@@ -55,6 +45,15 @@ impl ThreeFourView {
             }
 
             y += self.tile_size.height();
+        }
+    }
+}
+
+impl ThreeFourView {
+    pub fn new(tile_size: Size2d, tile_height: u32) -> Self {
+        ThreeFourView {
+            tile_size,
+            tile_height,
         }
     }
 

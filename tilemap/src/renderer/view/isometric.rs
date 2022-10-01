@@ -141,10 +141,31 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_calculate_delta_y() {
+        assert_eq!(IsometricView::calculate_delta_y(100), 45);
+    }
+
+    #[test]
+    fn test_delta() {
+        let viewer = IsometricView::new(100, 2000);
+
+        assert_eq!(viewer.delta_x, 90);
+        assert_eq!(viewer.delta_y, 45);
+    }
+
+    #[test]
+    fn test_floor_size() {
+        let tiles = Size2d::new(2, 3);
+        let viewer = IsometricView::new(100, 2000);
+
+        assert_eq!(viewer.calculate_floor_size(tiles), Size2d::new(450, 225));
+    }
+
+    #[test]
     fn test_get_size() {
         let tilemap = Tilemap2d::default(Size2d::new(2, 3), Tile::Empty).unwrap();
         let viewer = IsometricView::new(100, 200);
 
-        assert_eq!(viewer.get_size(&tilemap), Size2d::new(30, 75));
+        assert_eq!(viewer.get_size(&tilemap), Size2d::new(450, 425));
     }
 }

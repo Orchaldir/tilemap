@@ -11,19 +11,19 @@ use crate::tilemap::tilemap2d::Tilemap2d;
 pub struct IsometricView {
     delta_x: i32,
     delta_y: i32,
-    tile_height: u32,
+    tile_height: i32,
 }
 
 impl View for IsometricView {
     fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
-        self.calculate_floor_size(tilemap.get_size()) + Size2d::new(0, self.tile_height)
+        self.calculate_floor_size(tilemap.get_size()) + Size2d::new(0, self.tile_height as u32)
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
         let mut start = Point2d::new(
             self.delta_x * tiles.height() as i32,
-            self.tile_height as i32,
+            self.tile_height,
         );
         let mut index = 0;
 
@@ -62,7 +62,7 @@ impl IsometricView {
         IsometricView {
             delta_x: delta_y * 2,
             delta_y,
-            tile_height,
+            tile_height: tile_height as i32,
         }
     }
 
@@ -91,23 +91,23 @@ impl IsometricView {
     }
 
     fn render_ceiling(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
-        let ceiling = Point2d::new(point.x, point.y - self.tile_height as i32);
+        let ceiling = Point2d::new(point.x, point.y - self.tile_height);
         self.render_tile(renderer, ceiling, color)
     }
 
     fn render_front(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
         let left = Point2d::new(point.x - self.delta_x, point.y + self.delta_y);
         let bottom = Point2d::new(point.x, point.y + self.delta_y * 2);
-        let right = Point2d::new(bottom.x, bottom.y - self.tile_height as i32);
-        let top = Point2d::new(left.x, left.y - self.tile_height as i32);
+        let right = Point2d::new(bottom.x, bottom.y - self.tile_height);
+        let top = Point2d::new(left.x, left.y - self.tile_height);
         renderer.render_transformed_rectangle(top, left, bottom, right, color)
     }
 
     fn render_side(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
         let right = Point2d::new(point.x + self.delta_x, point.y + self.delta_y);
-        let top = Point2d::new(right.x, right.y - self.tile_height as i32);
+        let top = Point2d::new(right.x, right.y - self.tile_height);
         let bottom = Point2d::new(point.x, point.y + self.delta_y * 2);
-        let left = Point2d::new(bottom.x, bottom.y - self.tile_height as i32);
+        let left = Point2d::new(bottom.x, bottom.y - self.tile_height);
         renderer.render_transformed_rectangle(right, top, left, bottom, color)
     }
 }

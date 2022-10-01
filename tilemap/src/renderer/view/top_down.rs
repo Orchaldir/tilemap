@@ -50,7 +50,7 @@ impl View for TopDownView {
             renderer.render_line(
                 Point2d::new(0, y),
                 Point2d::new(size.width() as i32, y),
-                BLACK,
+                *style.get_grid_color(),
             );
         }
 
@@ -59,7 +59,7 @@ impl View for TopDownView {
             renderer.render_line(
                 Point2d::new(x, 0),
                 Point2d::new(x, size.height() as i32),
-                BLACK,
+                *style.get_grid_color(),
             );
         }
     }

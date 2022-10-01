@@ -5,16 +5,18 @@ pub enum Style {
     Simple {
         floor: Color,
         front: Color,
+        grid: Color,
         side: Color,
         top: Color,
     },
 }
 
 impl Style {
-    pub fn new_simple(floor: Color, front: Color, side: Color, top: Color) -> Self {
+    pub fn new_simple(floor: Color, front: Color, grid: Color, side: Color, top: Color) -> Self {
         Style::Simple {
             floor,
             front,
+            grid,
             side,
             top,
         }
@@ -29,6 +31,12 @@ impl Style {
     pub fn get_front_color(&self) -> &Color {
         match self {
             Style::Simple { front, .. } => front,
+        }
+    }
+
+    pub fn get_grid_color(&self) -> &Color {
+        match self {
+            Style::Simple { grid, .. } => grid,
         }
     }
 

@@ -7,7 +7,7 @@ use crate::renderer::view::View;
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
-/// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an isometric view.
+/// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an [`isometric view`](https://en.wikipedia.org/wiki/Isometric_projection).
 pub struct IsometricView {
     delta_x: i32,
     delta_y: i32,

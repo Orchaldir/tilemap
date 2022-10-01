@@ -13,8 +13,8 @@ pub struct ThreeFourView {
 }
 
 impl View for ThreeFourView {
-    fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
-        tilemap.get_size() * self.tile_size + Size2d::new(0, self.tile_height)
+    fn get_size(&self, tiles: Size2d) -> Size2d {
+        tiles * self.tile_size + Size2d::new(0, self.tile_height)
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -47,6 +47,8 @@ impl View for ThreeFourView {
             y += self.tile_size.height();
         }
     }
+
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {}
 }
 
 impl ThreeFourView {
@@ -68,9 +70,8 @@ mod tests {
 
     #[test]
     fn test_get_size() {
-        let tilemap = Tilemap2d::default(Size2d::new(2, 3), Tile::Empty).unwrap();
         let viewer = ThreeFourView::new(Size2d::new(15, 25), 35);
 
-        assert_eq!(viewer.get_size(&tilemap), Size2d::new(30, 110));
+        assert_eq!(viewer.get_size(Size2d::new(2, 3)), Size2d::new(30, 110));
     }
 }

@@ -15,8 +15,8 @@ pub struct IsometricView {
 }
 
 impl View for IsometricView {
-    fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
-        self.calculate_floor_size(tilemap.get_size()) + Size2d::new(0, self.tile_height as u32)
+    fn get_size(&self, tiles: Size2d) -> Size2d {
+        self.calculate_floor_size(tiles) + Size2d::new(0, self.tile_height as u32)
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -51,6 +51,8 @@ impl View for IsometricView {
             start.y += self.delta_y as i32;
         }
     }
+
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {}
 }
 
 impl IsometricView {
@@ -163,9 +165,8 @@ mod tests {
 
     #[test]
     fn test_get_size() {
-        let tilemap = Tilemap2d::default(Size2d::new(2, 3), Tile::Empty).unwrap();
         let viewer = IsometricView::new(100, 200);
 
-        assert_eq!(viewer.get_size(&tilemap), Size2d::new(450, 425));
+        assert_eq!(viewer.get_size(Size2d::new(2, 3)), Size2d::new(450, 425));
     }
 }

@@ -91,7 +91,7 @@ impl Renderer for SvgBuilder {
 
     fn render_line(&mut self, p0: Point2d, p1: Point2d, color: Color) {
         self.lines.push(format!(
-            "  <path d=\"M{} {} {} {}\" stroke=\"{}\" stroke-dasharray=\"5,5\"/>",
+            "  <path d=\"M{} {} {} {}\" stroke=\"{}\" stroke-dasharray=\"1,4\"/>",
             p0.x,
             p0.y,
             p1.x,

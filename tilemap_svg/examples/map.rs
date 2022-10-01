@@ -42,10 +42,11 @@ fn main() {
 
 fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let style = Style::new_simple(CYAN, RED, YELLOW, GREEN);
-    let svg_size = viewer.get_size(tilemap);
+    let svg_size = viewer.get_size(tilemap.get_size());
     let mut builder = SvgBuilder::new(svg_size);
 
     viewer.render(&tilemap, &mut builder, &style);
+    viewer.render_grid(tilemap.get_size(), &mut builder, &style);
 
     let svg = builder.finish();
     svg.save(path).unwrap();

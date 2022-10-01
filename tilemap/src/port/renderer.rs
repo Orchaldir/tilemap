@@ -15,4 +15,7 @@ pub trait Renderer {
         p3: Point2d,
         color: Color,
     );
+
+    /// Renders a line between 2 points.
+    fn render_line(&mut self, p0: Point2d, p1: Point2d, color: Color);
 }

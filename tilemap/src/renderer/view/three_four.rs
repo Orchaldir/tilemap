@@ -1,4 +1,5 @@
 use crate::math::color::Color;
+use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
@@ -13,8 +14,8 @@ pub struct ThreeFourView {
 }
 
 impl View for ThreeFourView {
-    fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
-        tilemap.get_size() * self.tile_size + Size2d::new(0, self.tile_height)
+    fn get_size(&self, tiles: Size2d) -> Size2d {
+        tiles * self.tile_size + Size2d::new(0, self.tile_height)
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -47,6 +48,32 @@ impl View for ThreeFourView {
             y += self.tile_size.height();
         }
     }
+
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        let size = self.get_size(tiles);
+        let mut y = self.tile_height + self.tile_size.height();
+
+        for _row in 0..(tiles.height() - 1) {
+            renderer.render_line(
+                Point2d::new(0, y as i32),
+                Point2d::new(size.width() as i32, y as i32),
+                *style.get_grid_color(),
+            );
+
+            y += self.tile_size.height();
+        }
+
+        y = self.tile_height;
+
+        for column in 0..(tiles.width() - 1) {
+            let x = ((column + 1) * self.tile_size.width()) as i32;
+            renderer.render_line(
+                Point2d::new(x, y as i32),
+                Point2d::new(x, size.height() as i32),
+                *style.get_grid_color(),
+            );
+        }
+    }
 }
 
 impl ThreeFourView {
@@ -68,9 +95,8 @@ mod tests {
 
     #[test]
     fn test_get_size() {
-        let tilemap = Tilemap2d::default(Size2d::new(2, 3), Tile::Empty).unwrap();
         let viewer = ThreeFourView::new(Size2d::new(15, 25), 35);
 
-        assert_eq!(viewer.get_size(&tilemap), Size2d::new(30, 110));
+        assert_eq!(viewer.get_size(Size2d::new(2, 3)), Size2d::new(30, 110));
     }
 }

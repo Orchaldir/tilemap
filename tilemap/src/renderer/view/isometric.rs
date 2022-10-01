@@ -7,7 +7,7 @@ use crate::renderer::view::View;
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
-/// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an isometric view.
+/// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an [`isometric view`](https://en.wikipedia.org/wiki/Isometric_projection).
 pub struct IsometricView {
     delta_x: i32,
     delta_y: i32,
@@ -15,13 +15,13 @@ pub struct IsometricView {
 }
 
 impl View for IsometricView {
-    fn get_size(&self, tilemap: &Tilemap2d) -> Size2d {
-        self.calculate_floor_size(tilemap.get_size()) + Size2d::new(0, self.tile_height as u32)
+    fn get_size(&self, tiles: Size2d) -> Size2d {
+        self.calculate_floor_size(tiles) + Size2d::new(0, self.tile_height as u32)
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let mut start = Point2d::new(self.delta_x * tiles.height() as i32, self.tile_height);
+        let mut start = self.get_start(tiles);
         let mut index = 0;
 
         for _y in 0..tiles.height() {
@@ -50,6 +50,11 @@ impl View for IsometricView {
             start.x -= self.delta_x as i32;
             start.y += self.delta_y as i32;
         }
+    }
+
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        self.render_grid_rows(tiles, renderer, style);
+        self.render_grid_columns(tiles, renderer, style);
     }
 }
 
@@ -115,6 +120,41 @@ impl IsometricView {
         renderer.render_transformed_rectangle(right0, right1, front1, front0, color)
     }
 
+    /// Render the lines of the grid between columns.
+    fn render_grid_columns(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        let start = self.get_start(tiles);
+        let mut start_column = self.get_right(start);
+        let diff_column = self.get_diff_column(tiles);
+
+        for _column in 0..(tiles.width() - 1) {
+            let end_column = start_column + diff_column;
+
+            renderer.render_line(start_column, end_column, *style.get_grid_color());
+
+            start_column = self.get_right(start_column);
+        }
+    }
+
+    /// Render the lines of the grid between rows.
+    fn render_grid_rows(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        let start = self.get_start(tiles);
+        let mut start_row = self.get_left(start);
+        let diff_row = self.get_diff_row(tiles);
+
+        for _row in 0..(tiles.height() - 1) {
+            let end_row = start_row + diff_row;
+
+            renderer.render_line(start_row, end_row, *style.get_grid_color());
+
+            start_row = self.get_left(start_row);
+        }
+    }
+
+    /// Calculate the back point of the 1.tile.
+    fn get_start(&self, tiles: Size2d) -> Point2d {
+        Point2d::new(self.delta_x * tiles.height() as i32, self.tile_height)
+    }
+
     /// Calculate the front corner of the floor tile from the back corner.
     fn get_front(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y + self.delta_y * 2)
@@ -133,6 +173,16 @@ impl IsometricView {
     /// Calculate the equivalent point on the ceiling from any point on the floor.
     fn get_top(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y - self.tile_height)
+    }
+
+    /// Calculate the difference between the start & end point of a column.
+    fn get_diff_column(&self, tiles: Size2d) -> Point2d {
+        self.get_left(Point2d::default()) * tiles.height()
+    }
+
+    /// Calculate the difference between the start & end point of a row.
+    fn get_diff_row(&self, tiles: Size2d) -> Point2d {
+        self.get_right(Point2d::default()) * tiles.width()
     }
 }
 
@@ -163,9 +213,8 @@ mod tests {
 
     #[test]
     fn test_get_size() {
-        let tilemap = Tilemap2d::default(Size2d::new(2, 3), Tile::Empty).unwrap();
         let viewer = IsometricView::new(100, 200);
 
-        assert_eq!(viewer.get_size(&tilemap), Size2d::new(450, 425));
+        assert_eq!(viewer.get_size(Size2d::new(2, 3)), Size2d::new(450, 425));
     }
 }

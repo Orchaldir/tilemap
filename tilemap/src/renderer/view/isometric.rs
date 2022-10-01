@@ -40,7 +40,7 @@ impl View for IsometricView {
                     }
                 }
 
-                // Move the point of the next tile in this row row
+                // Move the point of the next tile in this row
                 point.x += self.delta_x as i32;
                 point.y += self.delta_y as i32;
                 index += 1;
@@ -67,6 +67,7 @@ impl IsometricView {
         ((tile_size as f32) / (5.0_f32).sqrt()).ceil() as i32
     }
 
+    /// Calculates the size needed to render the floor of the tilemap.
     pub fn calculate_floor_size(&self, tiles: Size2d) -> Size2d {
         let dx = self.delta_x as u32;
         let dy = self.delta_y as u32;
@@ -80,6 +81,7 @@ impl IsometricView {
         )
     }
 
+    /// Render a tile relative to its back point.
     fn render_tile(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
         renderer.render_transformed_rectangle(
             back,
@@ -90,38 +92,45 @@ impl IsometricView {
         )
     }
 
-    fn render_ceiling(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
-        self.render_tile(renderer, self.get_top(point), color)
+    /// Render the ceiling tile relative to the back point of the floor tile.
+    fn render_ceiling(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
+        self.render_tile(renderer, self.get_top(back), color)
     }
 
-    fn render_front(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
-        let left = Point2d::new(point.x - self.delta_x, point.y + self.delta_y);
-        let bottom = Point2d::new(point.x, point.y + self.delta_y * 2);
-        let right = Point2d::new(bottom.x, bottom.y - self.tile_height);
-        let top = Point2d::new(left.x, left.y - self.tile_height);
-        renderer.render_transformed_rectangle(top, left, bottom, right, color)
+    /// Render the front of a solid tile relative to the back point of the floor tile.
+    fn render_front(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
+        let left0 = self.get_left(back);
+        let left1 = self.get_top(left0);
+        let front0 = self.get_front(back);
+        let front1 = self.get_top(front0);
+        renderer.render_transformed_rectangle(left1, left0, front0, front1, color)
     }
 
-    fn render_side(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
-        let right = Point2d::new(point.x + self.delta_x, point.y + self.delta_y);
-        let top = Point2d::new(right.x, right.y - self.tile_height);
-        let bottom = Point2d::new(point.x, point.y + self.delta_y * 2);
-        let left = Point2d::new(bottom.x, bottom.y - self.tile_height);
-        renderer.render_transformed_rectangle(right, top, left, bottom, color)
+    /// Render the side of a solid tile relative to the back point of the floor tile.
+    fn render_side(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
+        let right0 = self.get_right(back);
+        let right1 = self.get_top(right0);
+        let front0 = self.get_front(back);
+        let front1 = self.get_top(front0);
+        renderer.render_transformed_rectangle(right0, right1, front1, front0, color)
     }
 
+    /// Calculate the front corner of the floor tile from the back corner.
     fn get_front(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y + self.delta_y * 2)
     }
 
+    /// Calculate the left corner of the floor tile from the back corner.
     fn get_left(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x - self.delta_x, point.y + self.delta_y)
     }
 
+    /// Calculate the right corner of the floor tile from the back corner.
     fn get_right(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x + self.delta_x, point.y + self.delta_y)
     }
 
+    /// Calculate the equivalent point on the ceiling from any point on the floor.
     fn get_top(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y - self.tile_height)
     }

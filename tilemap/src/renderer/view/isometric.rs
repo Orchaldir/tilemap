@@ -21,10 +21,7 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let mut start = Point2d::new(
-            self.delta_x * tiles.height() as i32,
-            self.tile_height,
-        );
+        let mut start = Point2d::new(self.delta_x * tiles.height() as i32, self.tile_height);
         let mut index = 0;
 
         for _y in 0..tiles.height() {
@@ -84,10 +81,13 @@ impl IsometricView {
     }
 
     fn render_tile(&self, renderer: &mut dyn Renderer, top: Point2d, color: Color) {
-        let left = Point2d::new(top.x - self.delta_x, top.y + self.delta_y);
-        let right = Point2d::new(top.x + self.delta_x, top.y + self.delta_y);
-        let bottom = Point2d::new(top.x, top.y + self.delta_y * 2);
-        renderer.render_transformed_rectangle(top, left, bottom, right, color)
+        renderer.render_transformed_rectangle(
+            top,
+            self.get_left(top),
+            self.get_bottom(top),
+            self.get_right(top),
+            color,
+        )
     }
 
     fn render_ceiling(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
@@ -109,6 +109,18 @@ impl IsometricView {
         let bottom = Point2d::new(point.x, point.y + self.delta_y * 2);
         let left = Point2d::new(bottom.x, bottom.y - self.tile_height);
         renderer.render_transformed_rectangle(right, top, left, bottom, color)
+    }
+
+    fn get_bottom(&self, point: Point2d) -> Point2d {
+        Point2d::new(point.x, point.y + self.delta_y * 2)
+    }
+
+    fn get_left(&self, point: Point2d) -> Point2d {
+        Point2d::new(point.x - self.delta_x, point.y + self.delta_y)
+    }
+
+    fn get_right(&self, point: Point2d) -> Point2d {
+        Point2d::new(point.x + self.delta_x, point.y + self.delta_y)
     }
 }
 

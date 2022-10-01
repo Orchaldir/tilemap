@@ -14,8 +14,8 @@ A library to create tilemaps and render them with the different perspectives & s
 * 3/4 Perspective
 * Isometric Perspective
 
-![Top Down Perspective](../assets/v0.1/top_down.svg)
+![Top Down Perspective](../assets/V0.1/top_down.svg)
 
-![3/4 Perspective](../assets/v0.1/3_4.svg)
+![3/4 Perspective](../assets/V0.1/3_4.svg)
 
-![Isometric Perspective](../assets/v0.1/isometric.svg)
+![Isometric Perspective](../assets/V0.1/isometric.svg)

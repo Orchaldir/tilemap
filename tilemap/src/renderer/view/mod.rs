@@ -3,6 +3,7 @@ use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
+pub mod isometric;
 pub mod three_four;
 pub mod top_down;
 

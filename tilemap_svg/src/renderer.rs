@@ -2,6 +2,7 @@ use anyhow::Result;
 use std::fs::File;
 use std::io::Write;
 use tilemap::math::color::Color;
+use tilemap::math::point2d::Point2d;
 use tilemap::math::size2d::Size2d;
 use tilemap::port::renderer::Renderer;
 
@@ -62,6 +63,28 @@ impl Renderer for SvgBuilder {
             y,
             size.width(),
             size.height(),
+            color.to_hex(),
+        ));
+    }
+
+    fn render_transformed_rectangle(
+        &mut self,
+        p0: Point2d,
+        p1: Point2d,
+        p2: Point2d,
+        p3: Point2d,
+        color: Color,
+    ) {
+        self.lines.push(format!(
+            "  <polygon points=\"{},{} {},{} {},{} {},{}\" fill=\"{}\"/>",
+            p0.x,
+            p0.y,
+            p1.x,
+            p1.y,
+            p2.x,
+            p2.y,
+            p3.x,
+            p3.y,
             color.to_hex(),
         ));
     }

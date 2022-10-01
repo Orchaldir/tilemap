@@ -80,19 +80,18 @@ impl IsometricView {
         )
     }
 
-    fn render_tile(&self, renderer: &mut dyn Renderer, top: Point2d, color: Color) {
+    fn render_tile(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
         renderer.render_transformed_rectangle(
-            top,
-            self.get_left(top),
-            self.get_bottom(top),
-            self.get_right(top),
+            back,
+            self.get_left(back),
+            self.get_front(back),
+            self.get_right(back),
             color,
         )
     }
 
     fn render_ceiling(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
-        let ceiling = Point2d::new(point.x, point.y - self.tile_height);
-        self.render_tile(renderer, ceiling, color)
+        self.render_tile(renderer, self.get_top(point), color)
     }
 
     fn render_front(&self, renderer: &mut dyn Renderer, point: Point2d, color: Color) {
@@ -111,7 +110,7 @@ impl IsometricView {
         renderer.render_transformed_rectangle(right, top, left, bottom, color)
     }
 
-    fn get_bottom(&self, point: Point2d) -> Point2d {
+    fn get_front(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y + self.delta_y * 2)
     }
 
@@ -121,6 +120,10 @@ impl IsometricView {
 
     fn get_right(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x + self.delta_x, point.y + self.delta_y)
+    }
+
+    fn get_top(&self, point: Point2d) -> Point2d {
+        Point2d::new(point.x, point.y - self.tile_height)
     }
 }
 

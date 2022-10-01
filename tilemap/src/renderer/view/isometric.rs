@@ -21,7 +21,7 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let mut start = Point2d::new(self.delta_x * tiles.height() as i32, self.tile_height);
+        let mut start = self.get_start(tiles);
         let mut index = 0;
 
         for _y in 0..tiles.height() {
@@ -52,7 +52,10 @@ impl View for IsometricView {
         }
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {}
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        self.render_grid_rows(tiles, renderer, style);
+        self.render_grid_columns(tiles, renderer, style);
+    }
 }
 
 impl IsometricView {
@@ -117,6 +120,38 @@ impl IsometricView {
         renderer.render_transformed_rectangle(right0, right1, front1, front0, color)
     }
 
+    fn render_grid_rows(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        let start = self.get_start(tiles);
+        let mut start_row = self.get_left(start);
+        let diff_row = self.get_diff_row(tiles);
+
+        for _row in 0..(tiles.height() - 1) {
+            let end_row = start_row + diff_row;
+
+            renderer.render_line(start_row, end_row, *style.get_grid_color());
+
+            start_row = self.get_left(start_row);
+        }
+    }
+
+    fn render_grid_columns(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        let start = self.get_start(tiles);
+        let mut start_column = self.get_right(start);
+        let diff_column = self.get_diff_column(tiles);
+
+        for _column in 0..(tiles.width() - 1) {
+            let end_column = start_column + diff_column;
+
+            renderer.render_line(start_column, end_column, *style.get_grid_color());
+
+            start_column = self.get_right(start_column);
+        }
+    }
+
+    fn get_start(&self, tiles: Size2d) -> Point2d {
+        Point2d::new(self.delta_x * tiles.height() as i32, self.tile_height)
+    }
+
     /// Calculate the front corner of the floor tile from the back corner.
     fn get_front(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y + self.delta_y * 2)
@@ -135,6 +170,14 @@ impl IsometricView {
     /// Calculate the equivalent point on the ceiling from any point on the floor.
     fn get_top(&self, point: Point2d) -> Point2d {
         Point2d::new(point.x, point.y - self.tile_height)
+    }
+
+    fn get_diff_row(&self, tiles: Size2d) -> Point2d {
+        self.get_right(Point2d::default()) * tiles.width()
+    }
+
+    fn get_diff_column(&self, tiles: Size2d) -> Point2d {
+        self.get_left(Point2d::default()) * tiles.height()
     }
 }
 

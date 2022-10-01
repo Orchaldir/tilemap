@@ -1,7 +1,7 @@
 extern crate tilemap;
 extern crate tilemap_svg;
 
-use tilemap::math::color::{CYAN, GREEN, RED, YELLOW};
+use tilemap::math::color::{BLACK, CYAN, GREEN, RED, YELLOW};
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::Style;
 use tilemap::renderer::view::isometric::IsometricView;
@@ -41,7 +41,7 @@ fn main() {
 }
 
 fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
-    let style = Style::new_simple(CYAN, RED, YELLOW, GREEN);
+    let style = Style::new_simple(CYAN, RED, BLACK, YELLOW, GREEN);
     let svg_size = viewer.get_size(tilemap.get_size());
     let mut builder = SvgBuilder::new(svg_size);
 

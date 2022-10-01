@@ -1,4 +1,5 @@
 use crate::math::color::Color;
+use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
@@ -48,7 +49,31 @@ impl View for ThreeFourView {
         }
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {}
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+        let size = self.get_size(tiles);
+        let mut y = self.tile_height + self.tile_size.height();
+
+        for _row in 0..(tiles.height() - 1) {
+            renderer.render_line(
+                Point2d::new(0, y as i32),
+                Point2d::new(size.width() as i32, y as i32),
+                *style.get_grid_color(),
+            );
+
+            y += self.tile_size.height();
+        }
+
+        y = self.tile_height;
+
+        for column in 0..(tiles.width() - 1) {
+            let x = ((column + 1) * self.tile_size.width()) as i32;
+            renderer.render_line(
+                Point2d::new(x, y as i32),
+                Point2d::new(x, size.height() as i32),
+                *style.get_grid_color(),
+            );
+        }
+    }
 }
 
 impl ThreeFourView {

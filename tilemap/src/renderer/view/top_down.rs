@@ -1,4 +1,4 @@
-use crate::math::color::{Color, BLACK};
+use crate::math::color::Color;
 use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;

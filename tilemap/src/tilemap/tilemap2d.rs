@@ -5,29 +5,9 @@ use anyhow::{bail, Result};
 
 #[svgbobdoc::transform]
 /// The tilemap contains a 2d grid of [`tiles`](Tile) and the [`borders`](Border) between them.
-/// # Diagram
-///
-/// ```svgbob
-///
-///   +----------> x-axis
-///   |
-///   |             back
-///   |      +---------------+
-///   |      |               |
-///   |      |               |
-///   | left |     A tile    | right
-///   |      |               |
-///   |      |               |
-///   |      +---------------+
-///   |           front
-///   v
-/// y-axis
-///
-/// ```
-///
 #[derive(Debug, Eq, PartialEq)]
 pub struct Tilemap2d {
-    /// The size of a rectangle of [`Tile`].
+    /// The size of a rectangle of [`tiles`](Tile).
     size: Size2d,
     /// A rectangle of [`tiles`](Tile).
     tiles: Vec<Tile>,

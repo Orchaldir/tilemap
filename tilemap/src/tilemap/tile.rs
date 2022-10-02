@@ -1,3 +1,4 @@
+/// A space in the [`tilemap`](crate::tilemap::tilemap2d::Tilemap2d).
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Tile {
     /// Empty like a hole to a lower level or the empty sky around a flying island.

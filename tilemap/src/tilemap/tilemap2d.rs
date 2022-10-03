@@ -1,7 +1,12 @@
+use crate::math::side::Side;
 use crate::math::size2d::Size2d;
-use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
+use crate::tilemap::border::{
+    behind_tile, get_horizontal_borders_size, get_vertical_borders_size, in_front_of_tile,
+    left_of_tile, right_of_tile, Border,
+};
 use crate::tilemap::tile::Tile;
 use anyhow::{bail, Result};
+use Side::*;
 
 #[svgbobdoc::transform]
 /// The tilemap contains a 2d grid of [`tiles`](Tile) and the [`borders`](Border) between them.
@@ -75,6 +80,44 @@ impl Tilemap2d {
     pub fn set_tile(&mut self, index: usize, tile: Tile) {
         self.tiles[index] = tile;
     }
+
+    /// Borders
+
+    pub fn get_horizontal_borders(&self) -> &Vec<Border> {
+        &self.horizontal_borders
+    }
+
+    pub fn get_vertical_borders(&self) -> &Vec<Border> {
+        &self.vertical_borders
+    }
+
+    /// Returns the border on a specific side of a tile.
+    pub fn get_border(&self, tile_index: usize, side: Side) -> Border {
+        if tile_index >= self.size.count() {
+            panic!("get_border(): Tile {} is outside the tilemap!", tile_index);
+        }
+
+        match side {
+            Back => self.horizontal_borders[behind_tile(self.size, tile_index)],
+            Left => self.vertical_borders[left_of_tile(self.size, tile_index)],
+            Front => self.horizontal_borders[in_front_of_tile(self.size, tile_index)],
+            Right => self.vertical_borders[right_of_tile(self.size, tile_index)],
+        }
+    }
+
+    /// Sets the border on a specific side of a tile.
+    pub fn set_border(&mut self, tile_index: usize, side: Side, border: Border) {
+        if tile_index >= self.size.count() {
+            panic!("set_border(): Index {} is outside the tilemap!", tile_index);
+        }
+
+        match side {
+            Back => self.horizontal_borders[behind_tile(self.size, tile_index)] = border,
+            Left => self.vertical_borders[left_of_tile(self.size, tile_index)] = border,
+            Front => self.horizontal_borders[in_front_of_tile(self.size, tile_index)] = border,
+            Right => self.vertical_borders[right_of_tile(self.size, tile_index)] = border,
+        };
+    }
 }
 
 #[cfg(test)]
@@ -126,6 +169,31 @@ mod tests {
 
         assert_eq!(tilemap.get_size(), size);
         assert_eq!(tilemap.get_tiles(), &create_tiles());
+    }
+
+    #[test]
+    fn test_set_border() {
+        let size = Size2d::new(2, 3);
+        let mut tilemap = Tilemap2d::default(size, Tile::Empty).unwrap();
+
+        tilemap.set_border(5, Back, Border::Wall(1));
+        tilemap.set_border(5, Left, Border::Wall(2));
+        tilemap.set_border(5, Front, Border::Wall(3));
+        tilemap.set_border(5, Right, Border::Wall(4));
+
+        assert_eq!(tilemap.get_border(5, Back), Border::Wall(1));
+        assert_eq!(tilemap.get_border(5, Left), Border::Wall(2));
+        assert_eq!(tilemap.get_border(5, Front), Border::Wall(3));
+        assert_eq!(tilemap.get_border(5, Right), Border::Wall(4));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_set_border_outside_map() {
+        let size = Size2d::new(2, 3);
+        let mut tilemap = Tilemap2d::default(size, Tile::Empty).unwrap();
+
+        tilemap.set_border(6, Back, Border::Wall(1));
     }
 
     fn create_tiles() -> Vec<Tile> {

@@ -8,17 +8,26 @@ pub enum Style {
         grid: Color,
         side: Color,
         top: Color,
+        wall_thickness: u32,
     },
 }
 
 impl Style {
-    pub fn new_simple(floor: Color, front: Color, grid: Color, side: Color, top: Color) -> Self {
+    pub fn new_simple(
+        floor: Color,
+        front: Color,
+        grid: Color,
+        side: Color,
+        top: Color,
+        wall_thickness: u32,
+    ) -> Self {
         Style::Simple {
             floor,
             front,
             grid,
             side,
             top,
+            wall_thickness,
         }
     }
 
@@ -49,6 +58,12 @@ impl Style {
     pub fn get_top_color(&self) -> &Color {
         match self {
             Style::Simple { top, .. } => top,
+        }
+    }
+
+    pub fn get_wall_thickness(&self) -> u32 {
+        match self {
+            Style::Simple { wall_thickness, .. } => *wall_thickness,
         }
     }
 }

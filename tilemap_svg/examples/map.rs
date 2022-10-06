@@ -52,6 +52,8 @@ fn create_wall_example() -> Tilemap2d {
     let tiles = Size2d::new(12, 6);
     let mut tilemap = Tilemap2d::default(tiles, Tile::Floor(0)).unwrap();
 
+    tilemap.set_tile(40, Tile::Solid(3));
+
     tilemap.set_border(32, Side::Back, Border::Wall(0));
     tilemap.set_border(32, Side::Left, Border::Wall(0));
     tilemap.set_border(32, Side::Front, Border::Wall(0));

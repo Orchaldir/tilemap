@@ -62,7 +62,6 @@ impl ThreeFourView {
 
     fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
-        let front = Size2d::new(self.tile_size.width(), self.tile_height);
         let mut y = self.tile_height;
         let mut index = 0;
 
@@ -76,10 +75,14 @@ impl ThreeFourView {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
                     Tile::Solid(_id) => {
-                        let top_y = y - self.tile_height;
-                        let front_y = top_y + self.tile_size.height();
-                        renderer.render_rectangle(x, front_y, front, *style.get_front_color());
-                        self.render_tile(renderer, x, top_y, *style.get_top_color());
+                        self.render_aabb(
+                            renderer,
+                            x,
+                            y - self.tile_height,
+                            self.tile_size.width(),
+                            self.tile_size.height(),
+                            style,
+                        );
                     }
                 }
 
@@ -99,9 +102,8 @@ impl ThreeFourView {
     ) {
         let size = get_horizontal_borders_size(tilemap.get_size());
         let borders = tilemap.get_horizontal_borders();
-        let front = Size2d::new(self.tile_size.width(), self.tile_height);
 
-        let mut y = 0i32;
+        let mut y = 0;
         let mut index = 0;
 
         for _y in 0..size.height() {
@@ -113,22 +115,13 @@ impl ThreeFourView {
                     Border::Wall(_) => {
                         let thickness = style.get_wall_thickness();
 
-                        // render top
-
-                        renderer.render_rectangle(
+                        self.render_aabb(
+                            renderer,
                             x,
-                            (y - thickness as i32 / 2) as u32,
-                            Size2d::new(self.tile_size.width(), thickness),
-                            *style.get_top_color(),
-                        );
-
-                        // render front
-
-                        renderer.render_rectangle(
-                            x,
-                            (y + thickness as i32 / 2) as u32,
-                            front,
-                            *style.get_front_color(),
+                            y - thickness / 2,
+                            self.tile_size.width(),
+                            thickness,
+                            style,
                         );
                     }
                 }
@@ -137,7 +130,7 @@ impl ThreeFourView {
                 index += 1;
             }
 
-            y += self.tile_size.height() as i32;
+            y += self.tile_size.height();
         }
     }
 
@@ -154,42 +147,53 @@ impl ThreeFourView {
         let mut index = 0;
 
         for _y in 0..size.height() {
-            let mut x = 0i32;
+            let mut x = 0;
 
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
                     Border::Wall(_) => {
                         let thickness = style.get_wall_thickness();
-
-                        // render top
-
-                        renderer.render_rectangle(
-                            (x - thickness as i32 / 2) as u32,
+                        self.render_aabb(
+                            renderer,
+                            x - thickness / 2,
                             y,
-                            Size2d::new(thickness, self.tile_size.height()),
-                            *style.get_top_color(),
-                        );
-
-                        // render front
-
-                        let front_y = y + self.tile_size.height();
-
-                        renderer.render_rectangle(
-                            (x - thickness as i32 / 2) as u32,
-                            front_y,
-                            Size2d::new(thickness, self.tile_height),
-                            *style.get_front_color(),
+                            thickness,
+                            self.tile_size.height(),
+                            style,
                         );
                     }
                 }
 
-                x += self.tile_size.width() as i32;
+                x += self.tile_size.width();
                 index += 1;
             }
 
             y += self.tile_size.height();
         }
+    }
+
+    fn render_aabb(
+        &self,
+        renderer: &mut dyn Renderer,
+        x: u32,
+        y: u32,
+        size_x: u32,
+        size_y: u32,
+        style: &Style,
+    ) {
+        // render top
+
+        renderer.render_rectangle(x, y, Size2d::new(size_x, size_y), *style.get_top_color());
+
+        // render front
+
+        renderer.render_rectangle(
+            x,
+            y + size_y,
+            Size2d::new(size_x, self.tile_height),
+            *style.get_front_color(),
+        );
     }
 
     fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {

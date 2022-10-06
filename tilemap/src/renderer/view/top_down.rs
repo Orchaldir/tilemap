@@ -137,7 +137,7 @@ impl TopDownView {
                         renderer.render_rectangle(
                             (x - thickness as i32 / 2) as u32,
                             y,
-                            Size2d::new(thickness, self.tile_size.width()),
+                            Size2d::new(thickness, self.tile_size.height()),
                             *style.get_top_color(),
                         )
                     }

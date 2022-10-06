@@ -4,7 +4,7 @@ use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
 use crate::renderer::view::View;
-use crate::tilemap::border::{get_horizontal_borders_size, Border};
+use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -22,6 +22,7 @@ impl View for ThreeFourView {
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         self.render_tiles(tilemap, renderer, style);
         self.render_horizontal_borders(tilemap, renderer, style);
+        self.render_vertical_borders(tilemap, renderer, style);
     }
 
     fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -137,6 +138,57 @@ impl ThreeFourView {
             }
 
             y += self.tile_size.height() as i32;
+        }
+    }
+
+    fn render_vertical_borders(
+        &self,
+        tilemap: &Tilemap2d,
+        renderer: &mut dyn Renderer,
+        style: &Style,
+    ) {
+        let size = get_vertical_borders_size(tilemap.get_size());
+        let borders = tilemap.get_vertical_borders();
+
+        let mut y = 0;
+        let mut index = 0;
+
+        for _y in 0..size.height() {
+            let mut x = 0i32;
+
+            for _x in 0..size.width() {
+                match &borders[index] {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+
+                        // render top
+
+                        renderer.render_rectangle(
+                            (x - thickness as i32 / 2) as u32,
+                            y,
+                            Size2d::new(thickness, self.tile_size.height()),
+                            *style.get_top_color(),
+                        );
+
+                        // render front
+
+                        let front_y = y + self.tile_size.height();
+
+                        renderer.render_rectangle(
+                            (x - thickness as i32 / 2) as u32,
+                            front_y,
+                            Size2d::new(thickness, self.tile_height),
+                            *style.get_front_color(),
+                        );
+                    }
+                }
+
+                x += self.tile_size.width() as i32;
+                index += 1;
+            }
+
+            y += self.tile_size.height();
         }
     }
 

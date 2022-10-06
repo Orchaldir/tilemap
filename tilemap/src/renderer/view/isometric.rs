@@ -317,8 +317,8 @@ mod tests {
     fn test_delta() {
         let viewer = IsometricView::new(100, 2000);
 
-        assert_eq!(viewer.delta_x, 90);
-        assert_eq!(viewer.delta_y, 45);
+        assert_eq!(viewer.delta.x, 90);
+        assert_eq!(viewer.delta.y, 45);
     }
 
     #[test]

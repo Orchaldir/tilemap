@@ -43,9 +43,11 @@ impl View for IsometricView {
                     Border::Empty => {}
                     Border::Wall(_) => {
                         let thickness = style.get_wall_thickness();
+                        let delta_half = Self::calculate_delta(thickness / 2);
+                        let back = self.get_reverse_left_box(point, delta_half);
                         self.render_box(
                             renderer,
-                            point,
+                            back,
                             self.delta,
                             Self::calculate_delta(thickness),
                             style,
@@ -57,9 +59,11 @@ impl View for IsometricView {
                     Border::Empty => {}
                     Border::Wall(_) => {
                         let thickness = style.get_wall_thickness();
+                        let delta_half = Self::calculate_delta(thickness / 2);
+                        let left = self.get_reverse_right_box(point, delta_half);
                         self.render_box(
                             renderer,
-                            point,
+                            left,
                             Self::calculate_delta(thickness),
                             self.delta,
                             style,
@@ -266,6 +270,10 @@ impl IsometricView {
         Point2d::new(point.x - delta.x, point.y + delta.y)
     }
 
+    fn get_reverse_left_box(&self, point: Point2d, delta: Point2d) -> Point2d {
+        Point2d::new(point.x + delta.x, point.y - delta.y)
+    }
+
     /// Calculate the right corner of the floor tile from the back corner.
     fn get_right(&self, point: Point2d) -> Point2d {
         self.get_right_box(point, self.delta)
@@ -274,6 +282,10 @@ impl IsometricView {
     /// Calculate the right corner of an axis aligned box from the back corner.
     fn get_right_box(&self, point: Point2d, delta: Point2d) -> Point2d {
         Point2d::new(point.x + delta.x, point.y + delta.y)
+    }
+
+    fn get_reverse_right_box(&self, point: Point2d, delta: Point2d) -> Point2d {
+        Point2d::new(point.x - delta.x, point.y - delta.y)
     }
 
     /// Calculate the equivalent point on the ceiling from any point on the floor.

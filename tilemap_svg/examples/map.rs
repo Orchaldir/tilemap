@@ -54,10 +54,27 @@ fn create_wall_example() -> Tilemap2d {
 
     tilemap.set_tile(40, Tile::Solid(3));
 
-    tilemap.set_border(32, Side::Back, Border::Wall(0));
-    tilemap.set_border(32, Side::Left, Border::Wall(0));
-    tilemap.set_border(32, Side::Front, Border::Wall(0));
-    tilemap.set_border(32, Side::Right, Border::Wall(0));
+    tilemap.set_border(1, Side::Front, Border::Wall(0));
+    tilemap.set_border(2, Side::Front, Border::Wall(0));
+    tilemap.set_border(3, Side::Front, Border::Wall(0));
+    tilemap.set_border(4, Side::Front, Border::Wall(0));
+    tilemap.set_border(5, Side::Front, Border::Wall(0));
+    tilemap.set_border(6, Side::Front, Border::Wall(0));
+    tilemap.set_border(7, Side::Front, Border::Wall(0));
+    tilemap.set_border(8, Side::Front, Border::Wall(0));
+    tilemap.set_border(9, Side::Front, Border::Wall(0));
+    tilemap.set_border(10, Side::Front, Border::Wall(0));
+
+    tilemap.set_border(49, Side::Front, Border::Wall(0));
+    tilemap.set_border(50, Side::Front, Border::Wall(0));
+    tilemap.set_border(51, Side::Front, Border::Wall(0));
+    tilemap.set_border(52, Side::Front, Border::Wall(0));
+    tilemap.set_border(53, Side::Front, Border::Wall(0));
+    tilemap.set_border(54, Side::Front, Border::Wall(0));
+    tilemap.set_border(55, Side::Front, Border::Wall(0));
+    tilemap.set_border(56, Side::Front, Border::Wall(0));
+    tilemap.set_border(57, Side::Front, Border::Wall(0));
+    tilemap.set_border(58, Side::Front, Border::Wall(0));
 
     tilemap
 }

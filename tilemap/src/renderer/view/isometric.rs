@@ -9,8 +9,7 @@ use crate::tilemap::tilemap2d::Tilemap2d;
 
 /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an [`isometric view`](https://en.wikipedia.org/wiki/Isometric_projection).
 pub struct IsometricView {
-    delta_x: i32,
-    delta_y: i32,
+    delta: Point2d,
     tile_height: i32,
 }
 
@@ -33,8 +32,7 @@ impl IsometricView {
     pub fn new(tile_size: u32, tile_height: u32) -> Self {
         let delta_y = Self::calculate_delta_y(tile_size);
         IsometricView {
-            delta_x: delta_y * 2,
-            delta_y,
+            delta: Point2d::new(delta_y * 2, delta_y),
             tile_height: tile_height as i32,
         }
     }
@@ -45,8 +43,8 @@ impl IsometricView {
 
     /// Calculates the size needed to render the floor of the tilemap.
     pub fn calculate_floor_size(&self, tiles: Size2d) -> Size2d {
-        let dx = self.delta_x as u32;
-        let dy = self.delta_y as u32;
+        let dx = self.delta.x as u32;
+        let dy = self.delta.y as u32;
         let left_to_center = dx * tiles.width();
         let center_to_right = dx * tiles.height();
         let center_to_bottom = dy * tiles.width();
@@ -57,6 +55,7 @@ impl IsometricView {
         )
     }
 
+    /// Render all the tiles relative to their back point.
     fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         let tiles = tilemap.get_size();
         let mut start = self.get_start(tiles);
@@ -71,11 +70,7 @@ impl IsometricView {
                 match tile {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
-                        self.render_ceiling(renderer, point, *style.get_top_color());
-                        self.render_front(renderer, point, *style.get_front_color());
-                        self.render_side(renderer, point, *style.get_side_color());
-                    }
+                    Tile::Solid(_id) => self.render_box(renderer, point, self.delta, style),
                 }
 
                 // Move the point of the next tile in this row
@@ -99,25 +94,63 @@ impl IsometricView {
         )
     }
 
-    /// Render the ceiling tile relative to the back point of the floor tile.
-    fn render_ceiling(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
-        self.render_tile(renderer, self.get_top(back), color)
+    /// Render an axis aligned box.
+    fn render_box(
+        &self,
+        renderer: &mut dyn Renderer,
+        back: Point2d,
+        delta: Point2d,
+        style: &Style,
+    ) {
+        self.render_ceiling(renderer, back, delta, *style.get_top_color());
+        self.render_front(renderer, back, delta, *style.get_front_color());
+        self.render_side(renderer, back, delta, *style.get_side_color());
     }
 
-    /// Render the front of a solid tile relative to the back point of the floor tile.
-    fn render_front(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
-        let left0 = self.get_left(back);
+    /// Render the top of an axis aligned box.
+    fn render_ceiling(
+        &self,
+        renderer: &mut dyn Renderer,
+        back: Point2d,
+        delta: Point2d,
+        color: Color,
+    ) {
+        let top_back = self.get_top(back);
+        renderer.render_transformed_rectangle(
+            top_back,
+            self.get_left_box(top_back, delta),
+            self.get_front_box(top_back, delta),
+            self.get_right_box(top_back, delta),
+            color,
+        )
+    }
+
+    /// Render the front of an axis aligned box.
+    fn render_front(
+        &self,
+        renderer: &mut dyn Renderer,
+        back: Point2d,
+        delta: Point2d,
+        color: Color,
+    ) {
+        let left0 = self.get_left_box(back, delta);
         let left1 = self.get_top(left0);
-        let front0 = self.get_front(back);
+        let front0 = self.get_front_box(back, delta);
         let front1 = self.get_top(front0);
         renderer.render_transformed_rectangle(left1, left0, front0, front1, color)
     }
 
-    /// Render the side of a solid tile relative to the back point of the floor tile.
-    fn render_side(&self, renderer: &mut dyn Renderer, back: Point2d, color: Color) {
-        let right0 = self.get_right(back);
+    /// Render the side of an axis aligned box.
+    fn render_side(
+        &self,
+        renderer: &mut dyn Renderer,
+        back: Point2d,
+        delta: Point2d,
+        color: Color,
+    ) {
+        let right0 = self.get_right_box(back, delta);
         let right1 = self.get_top(right0);
-        let front0 = self.get_front(back);
+        let front0 = self.get_front_box(back, delta);
         let front1 = self.get_top(front0);
         renderer.render_transformed_rectangle(right0, right1, front1, front0, color)
     }
@@ -154,22 +187,37 @@ impl IsometricView {
 
     /// Calculate the back point of the 1.tile.
     fn get_start(&self, tiles: Size2d) -> Point2d {
-        Point2d::new(self.delta_x * tiles.height() as i32, self.tile_height)
+        Point2d::new(self.delta.x * tiles.height() as i32, self.tile_height)
     }
 
     /// Calculate the front corner of the floor tile from the back corner.
     fn get_front(&self, point: Point2d) -> Point2d {
-        Point2d::new(point.x, point.y + self.delta_y * 2)
+        self.get_front_box(point, self.delta)
+    }
+
+    /// Calculate the front corner of an axis aligned box from the back corner.
+    fn get_front_box(&self, point: Point2d, delta: Point2d) -> Point2d {
+        Point2d::new(point.x, point.y + delta.y * 2)
     }
 
     /// Calculate the left corner of the floor tile from the back corner.
     fn get_left(&self, point: Point2d) -> Point2d {
-        Point2d::new(point.x - self.delta_x, point.y + self.delta_y)
+        self.get_left_box(point, self.delta)
+    }
+
+    /// Calculate the left corner of an axis aligned box from the back corner.
+    fn get_left_box(&self, point: Point2d, delta: Point2d) -> Point2d {
+        Point2d::new(point.x - delta.x, point.y + delta.y)
     }
 
     /// Calculate the right corner of the floor tile from the back corner.
     fn get_right(&self, point: Point2d) -> Point2d {
-        Point2d::new(point.x + self.delta_x, point.y + self.delta_y)
+        self.get_right_box(point, self.delta)
+    }
+
+    /// Calculate the right corner of an axis aligned box from the back corner.
+    fn get_right_box(&self, point: Point2d, delta: Point2d) -> Point2d {
+        Point2d::new(point.x + delta.x, point.y + delta.y)
     }
 
     /// Calculate the equivalent point on the ceiling from any point on the floor.

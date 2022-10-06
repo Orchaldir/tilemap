@@ -20,36 +20,7 @@ impl View for IsometricView {
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
-        let tiles = tilemap.get_size();
-        let mut start = self.get_start(tiles);
-        let mut index = 0;
-
-        for _y in 0..tiles.height() {
-            let mut point = start;
-
-            for _x in 0..tiles.width() {
-                let tile = tilemap.get_tile(index);
-
-                match tile {
-                    Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
-                        self.render_ceiling(renderer, point, *style.get_top_color());
-                        self.render_front(renderer, point, *style.get_front_color());
-                        self.render_side(renderer, point, *style.get_side_color());
-                    }
-                }
-
-                // Move the point of the next tile in this row
-                point.x += self.delta_x as i32;
-                point.y += self.delta_y as i32;
-                index += 1;
-            }
-
-            // Move the start point of the next row
-            start.x -= self.delta_x as i32;
-            start.y += self.delta_y as i32;
-        }
+        self.render_tiles(tilemap, renderer, style);
     }
 
     fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -84,6 +55,39 @@ impl IsometricView {
             left_to_center + center_to_right,
             center_to_bottom + center_to_top,
         )
+    }
+
+    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+        let tiles = tilemap.get_size();
+        let mut start = self.get_start(tiles);
+        let mut index = 0;
+
+        for _y in 0..tiles.height() {
+            let mut point = start;
+
+            for _x in 0..tiles.width() {
+                let tile = tilemap.get_tile(index);
+
+                match tile {
+                    Tile::Empty => {}
+                    Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
+                    Tile::Solid(_id) => {
+                        self.render_ceiling(renderer, point, *style.get_top_color());
+                        self.render_front(renderer, point, *style.get_front_color());
+                        self.render_side(renderer, point, *style.get_side_color());
+                    }
+                }
+
+                // Move the point of the next tile in this row
+                point.x += self.delta_x as i32;
+                point.y += self.delta_y as i32;
+                index += 1;
+            }
+
+            // Move the start point of the next row
+            start.x -= self.delta_x as i32;
+            start.y += self.delta_y as i32;
+        }
     }
 
     /// Render a tile relative to its back point.

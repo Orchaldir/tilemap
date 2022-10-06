@@ -4,6 +4,7 @@ use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
 use crate::renderer::view::View;
+use crate::tilemap::border::{get_horizontal_borders_size, Border};
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -20,6 +21,7 @@ impl View for ThreeFourView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         self.render_tiles(tilemap, renderer, style);
+        self.render_horizontal_borders(tilemap, renderer, style);
     }
 
     fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -85,6 +87,56 @@ impl ThreeFourView {
             }
 
             y += self.tile_size.height();
+        }
+    }
+
+    fn render_horizontal_borders(
+        &self,
+        tilemap: &Tilemap2d,
+        renderer: &mut dyn Renderer,
+        style: &Style,
+    ) {
+        let size = get_horizontal_borders_size(tilemap.get_size());
+        let borders = tilemap.get_horizontal_borders();
+        let front = Size2d::new(self.tile_size.width(), self.tile_height);
+
+        let mut y = 0i32;
+        let mut index = 0;
+
+        for _y in 0..size.height() {
+            let mut x = 0;
+
+            for _x in 0..size.width() {
+                match &borders[index] {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+
+                        // render top
+
+                        renderer.render_rectangle(
+                            x,
+                            (y - thickness as i32 / 2) as u32,
+                            Size2d::new(self.tile_size.width(), thickness),
+                            *style.get_top_color(),
+                        );
+
+                        // render front
+
+                        renderer.render_rectangle(
+                            x,
+                            (y + thickness as i32 / 2) as u32,
+                            front,
+                            *style.get_front_color(),
+                        );
+                    }
+                }
+
+                x += self.tile_size.width();
+                index += 1;
+            }
+
+            y += self.tile_size.height() as i32;
         }
     }
 

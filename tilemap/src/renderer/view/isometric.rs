@@ -4,6 +4,7 @@ use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
 use crate::renderer::view::View;
+use crate::tilemap::border::{get_horizontal_borders_size, Border};
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -20,6 +21,7 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
         self.render_tiles(tilemap, renderer, style);
+        self.render_horizontal_borders(tilemap, renderer, style);
     }
 
     fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -30,15 +32,19 @@ impl View for IsometricView {
 
 impl IsometricView {
     pub fn new(tile_size: u32, tile_height: u32) -> Self {
-        let delta_y = Self::calculate_delta_y(tile_size);
         IsometricView {
-            delta: Point2d::new(delta_y * 2, delta_y),
+            delta: Self::calculate_delta(tile_size),
             tile_height: tile_height as i32,
         }
     }
 
-    pub fn calculate_delta_y(tile_size: u32) -> i32 {
-        ((tile_size as f32) / (5.0_f32).sqrt()).ceil() as i32
+    pub fn calculate_delta(size: u32) -> Point2d {
+        let delta_y = Self::calculate_delta_y(size);
+        Point2d::new(delta_y * 2, delta_y)
+    }
+
+    pub fn calculate_delta_y(size: u32) -> i32 {
+        ((size as f32) / (5.0_f32).sqrt()).ceil() as i32
     }
 
     /// Calculates the size needed to render the floor of the tilemap.
@@ -70,7 +76,48 @@ impl IsometricView {
                 match tile {
                     Tile::Empty => {}
                     Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
-                    Tile::Solid(_id) => self.render_box(renderer, point, self.delta, style),
+                    Tile::Solid(_id) => {
+                        self.render_box(renderer, point, self.delta, self.delta, style)
+                    }
+                }
+
+                // Move the point of the next tile in this row
+                point = self.get_right(point);
+                index += 1;
+            }
+
+            // Move the start point of the next row
+            start = self.get_left(start);
+        }
+    }
+
+    fn render_horizontal_borders(
+        &self,
+        tilemap: &Tilemap2d,
+        renderer: &mut dyn Renderer,
+        style: &Style,
+    ) {
+        let size = get_horizontal_borders_size(tilemap.get_size());
+        let borders = tilemap.get_horizontal_borders();
+        let mut start = self.get_start(tilemap.get_size());
+        let mut index = 0;
+
+        for _y in 0..size.height() {
+            let mut point = start;
+
+            for _x in 0..size.width() {
+                match &borders[index] {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+                        self.render_box(
+                            renderer,
+                            point,
+                            self.delta,
+                            Self::calculate_delta(thickness),
+                            style,
+                        );
+                    }
                 }
 
                 // Move the point of the next tile in this row
@@ -99,12 +146,31 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
-        delta: Point2d,
+        delta_row: Point2d,
+        delta_column: Point2d,
         style: &Style,
     ) {
-        self.render_ceiling(renderer, back, delta, *style.get_top_color());
-        self.render_front(renderer, back, delta, *style.get_front_color());
-        self.render_side(renderer, back, delta, *style.get_side_color());
+        self.render_ceiling(
+            renderer,
+            back,
+            delta_row,
+            delta_column,
+            *style.get_top_color(),
+        );
+        self.render_front(
+            renderer,
+            back,
+            delta_row,
+            delta_column,
+            *style.get_front_color(),
+        );
+        self.render_side(
+            renderer,
+            back,
+            delta_row,
+            delta_column,
+            *style.get_side_color(),
+        );
     }
 
     /// Render the top of an axis aligned box.
@@ -112,15 +178,16 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
-        delta: Point2d,
+        delta_row: Point2d,
+        delta_column: Point2d,
         color: Color,
     ) {
         let top_back = self.get_top(back);
         renderer.render_transformed_rectangle(
             top_back,
-            self.get_left_box(top_back, delta),
-            self.get_front_box(top_back, delta),
-            self.get_right_box(top_back, delta),
+            self.get_left_box(top_back, delta_column),
+            self.get_front_box(top_back, delta_row, delta_column),
+            self.get_right_box(top_back, delta_row),
             color,
         )
     }
@@ -130,12 +197,13 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
-        delta: Point2d,
+        delta_row: Point2d,
+        delta_column: Point2d,
         color: Color,
     ) {
-        let left0 = self.get_left_box(back, delta);
+        let left0 = self.get_left_box(back, delta_column);
         let left1 = self.get_top(left0);
-        let front0 = self.get_front_box(back, delta);
+        let front0 = self.get_front_box(back, delta_row, delta_column);
         let front1 = self.get_top(front0);
         renderer.render_transformed_rectangle(left1, left0, front0, front1, color)
     }
@@ -145,12 +213,13 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
-        delta: Point2d,
+        delta_row: Point2d,
+        delta_column: Point2d,
         color: Color,
     ) {
-        let right0 = self.get_right_box(back, delta);
+        let right0 = self.get_right_box(back, delta_row);
         let right1 = self.get_top(right0);
-        let front0 = self.get_front_box(back, delta);
+        let front0 = self.get_front_box(back, delta_row, delta_column);
         let front1 = self.get_top(front0);
         renderer.render_transformed_rectangle(right0, right1, front1, front0, color)
     }
@@ -192,12 +261,15 @@ impl IsometricView {
 
     /// Calculate the front corner of the floor tile from the back corner.
     fn get_front(&self, point: Point2d) -> Point2d {
-        self.get_front_box(point, self.delta)
+        self.get_front_box(point, self.delta, self.delta)
     }
 
     /// Calculate the front corner of an axis aligned box from the back corner.
-    fn get_front_box(&self, point: Point2d, delta: Point2d) -> Point2d {
-        Point2d::new(point.x, point.y + delta.y * 2)
+    fn get_front_box(&self, point: Point2d, delta_row: Point2d, delta_column: Point2d) -> Point2d {
+        Point2d::new(
+            point.x + delta_row.x - delta_column.x,
+            point.y + delta_row.y + delta_column.y,
+        )
     }
 
     /// Calculate the left corner of the floor tile from the back corner.

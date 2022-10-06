@@ -1,10 +1,11 @@
 use crate::math::color::Color;
 use crate::math::point2d::Point2d;
+use crate::math::side::Side;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
 use crate::renderer::view::View;
-use crate::tilemap::border::{get_horizontal_borders_size, Border};
+use crate::tilemap::border::Border;
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -20,8 +21,60 @@ impl View for IsometricView {
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
-        self.render_tiles(tilemap, renderer, style);
-        self.render_horizontal_borders(tilemap, renderer, style);
+        let tiles = tilemap.get_size();
+        let mut start = self.get_start(tiles);
+        let mut index = 0;
+
+        for _y in 0..tiles.height() {
+            let mut point = start;
+
+            for _x in 0..tiles.width() {
+                let tile = tilemap.get_tile(index);
+
+                match tile {
+                    Tile::Empty => {}
+                    Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
+                    Tile::Solid(_id) => {
+                        self.render_box(renderer, point, self.delta, self.delta, style)
+                    }
+                }
+
+                match tilemap.get_border(index, Side::Back) {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+                        self.render_box(
+                            renderer,
+                            point,
+                            self.delta,
+                            Self::calculate_delta(thickness),
+                            style,
+                        );
+                    }
+                }
+
+                match tilemap.get_border(index, Side::Left) {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+                        self.render_box(
+                            renderer,
+                            point,
+                            Self::calculate_delta(thickness),
+                            self.delta,
+                            style,
+                        );
+                    }
+                }
+
+                // Move the point of the next tile in this row
+                point = self.get_right(point);
+                index += 1;
+            }
+
+            // Move the start point of the next row
+            start = self.get_left(start);
+        }
     }
 
     fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -59,75 +112,6 @@ impl IsometricView {
             left_to_center + center_to_right,
             center_to_bottom + center_to_top,
         )
-    }
-
-    /// Render all the tiles relative to their back point.
-    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
-        let tiles = tilemap.get_size();
-        let mut start = self.get_start(tiles);
-        let mut index = 0;
-
-        for _y in 0..tiles.height() {
-            let mut point = start;
-
-            for _x in 0..tiles.width() {
-                let tile = tilemap.get_tile(index);
-
-                match tile {
-                    Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
-                        self.render_box(renderer, point, self.delta, self.delta, style)
-                    }
-                }
-
-                // Move the point of the next tile in this row
-                point = self.get_right(point);
-                index += 1;
-            }
-
-            // Move the start point of the next row
-            start = self.get_left(start);
-        }
-    }
-
-    fn render_horizontal_borders(
-        &self,
-        tilemap: &Tilemap2d,
-        renderer: &mut dyn Renderer,
-        style: &Style,
-    ) {
-        let size = get_horizontal_borders_size(tilemap.get_size());
-        let borders = tilemap.get_horizontal_borders();
-        let mut start = self.get_start(tilemap.get_size());
-        let mut index = 0;
-
-        for _y in 0..size.height() {
-            let mut point = start;
-
-            for _x in 0..size.width() {
-                match &borders[index] {
-                    Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
-                        self.render_box(
-                            renderer,
-                            point,
-                            self.delta,
-                            Self::calculate_delta(thickness),
-                            style,
-                        );
-                    }
-                }
-
-                // Move the point of the next tile in this row
-                point = self.get_right(point);
-                index += 1;
-            }
-
-            // Move the start point of the next row
-            start = self.get_left(start);
-        }
     }
 
     /// Render a tile relative to its back point.

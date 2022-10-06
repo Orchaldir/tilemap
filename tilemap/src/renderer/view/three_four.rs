@@ -4,6 +4,7 @@ use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::Style;
 use crate::renderer::view::View;
+use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
@@ -19,34 +20,9 @@ impl View for ThreeFourView {
     }
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
-        let tiles = tilemap.get_size();
-        let front = Size2d::new(self.tile_size.width(), self.tile_height);
-        let mut y = self.tile_height;
-        let mut index = 0;
-
-        for _y in 0..tiles.height() {
-            let mut x = 0;
-
-            for _x in 0..tiles.width() {
-                let tile = tilemap.get_tile(index);
-
-                match tile {
-                    Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
-                        let top_y = y - self.tile_height;
-                        let front_y = top_y + self.tile_size.height();
-                        renderer.render_rectangle(x, front_y, front, *style.get_front_color());
-                        self.render_tile(renderer, x, top_y, *style.get_top_color());
-                    }
-                }
-
-                x += self.tile_size.width();
-                index += 1;
-            }
-
-            y += self.tile_size.height();
-        }
+        self.render_tiles(tilemap, renderer, style);
+        self.render_horizontal_borders(tilemap, renderer, style);
+        self.render_vertical_borders(tilemap, renderer, style);
     }
 
     fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
@@ -82,6 +58,142 @@ impl ThreeFourView {
             tile_size,
             tile_height,
         }
+    }
+
+    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+        let tiles = tilemap.get_size();
+        let mut y = self.tile_height;
+        let mut index = 0;
+
+        for _y in 0..tiles.height() {
+            let mut x = 0;
+
+            for _x in 0..tiles.width() {
+                let tile = tilemap.get_tile(index);
+
+                match tile {
+                    Tile::Empty => {}
+                    Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
+                    Tile::Solid(_id) => {
+                        self.render_aabb(
+                            renderer,
+                            x,
+                            y - self.tile_height,
+                            self.tile_size.width(),
+                            self.tile_size.height(),
+                            style,
+                        );
+                    }
+                }
+
+                x += self.tile_size.width();
+                index += 1;
+            }
+
+            y += self.tile_size.height();
+        }
+    }
+
+    fn render_horizontal_borders(
+        &self,
+        tilemap: &Tilemap2d,
+        renderer: &mut dyn Renderer,
+        style: &Style,
+    ) {
+        let size = get_horizontal_borders_size(tilemap.get_size());
+        let borders = tilemap.get_horizontal_borders();
+
+        let mut y = 0;
+        let mut index = 0;
+
+        for _y in 0..size.height() {
+            let mut x = 0;
+
+            for _x in 0..size.width() {
+                match &borders[index] {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+
+                        self.render_aabb(
+                            renderer,
+                            x,
+                            y - thickness / 2,
+                            self.tile_size.width(),
+                            thickness,
+                            style,
+                        );
+                    }
+                }
+
+                x += self.tile_size.width();
+                index += 1;
+            }
+
+            y += self.tile_size.height();
+        }
+    }
+
+    fn render_vertical_borders(
+        &self,
+        tilemap: &Tilemap2d,
+        renderer: &mut dyn Renderer,
+        style: &Style,
+    ) {
+        let size = get_vertical_borders_size(tilemap.get_size());
+        let borders = tilemap.get_vertical_borders();
+
+        let mut y = 0;
+        let mut index = 0;
+
+        for _y in 0..size.height() {
+            let mut x = 0;
+
+            for _x in 0..size.width() {
+                match &borders[index] {
+                    Border::Empty => {}
+                    Border::Wall(_) => {
+                        let thickness = style.get_wall_thickness();
+                        self.render_aabb(
+                            renderer,
+                            x - thickness / 2,
+                            y,
+                            thickness,
+                            self.tile_size.height(),
+                            style,
+                        );
+                    }
+                }
+
+                x += self.tile_size.width();
+                index += 1;
+            }
+
+            y += self.tile_size.height();
+        }
+    }
+
+    fn render_aabb(
+        &self,
+        renderer: &mut dyn Renderer,
+        x: u32,
+        y: u32,
+        size_x: u32,
+        size_y: u32,
+        style: &Style,
+    ) {
+        // render top
+
+        renderer.render_rectangle(x, y, Size2d::new(size_x, size_y), *style.get_top_color());
+
+        // render front
+
+        renderer.render_rectangle(
+            x,
+            y + size_y,
+            Size2d::new(size_x, self.tile_height),
+            *style.get_front_color(),
+        );
     }
 
     fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {

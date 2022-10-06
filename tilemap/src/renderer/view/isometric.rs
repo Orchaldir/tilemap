@@ -79,14 +79,12 @@ impl IsometricView {
                 }
 
                 // Move the point of the next tile in this row
-                point.x += self.delta_x as i32;
-                point.y += self.delta_y as i32;
+                point = self.get_right(point);
                 index += 1;
             }
 
             // Move the start point of the next row
-            start.x -= self.delta_x as i32;
-            start.y += self.delta_y as i32;
+            start = self.get_left(start);
         }
     }
 

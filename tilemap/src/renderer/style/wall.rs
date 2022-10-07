@@ -1,7 +1,7 @@
 use crate::math::color::Color;
 
 /// Defines how to render a [`wall`](crate::tilemap::border::Border::Wall).
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct WallStyle {
     name: String,
     front: Color,

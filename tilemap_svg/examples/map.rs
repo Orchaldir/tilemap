@@ -4,6 +4,10 @@ extern crate tilemap_svg;
 use tilemap::math::color::{BLACK, CYAN, GREEN, RED, YELLOW};
 use tilemap::math::side::Side;
 use tilemap::math::size2d::Size2d;
+use tilemap::renderer::style::aab::BoxStyle;
+use tilemap::renderer::style::floor::FloorStyle;
+use tilemap::renderer::style::solid::SolidStyle;
+use tilemap::renderer::style::wall::WallStyle;
 use tilemap::renderer::style::Style;
 use tilemap::renderer::view::isometric::IsometricView;
 use tilemap::renderer::view::three_four::ThreeFourView;
@@ -90,7 +94,11 @@ fn create_wall_example() -> Tilemap2d {
 }
 
 fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
-    let style = Style::new_simple(CYAN, RED, BLACK, YELLOW, GREEN, 10);
+    let box_style = BoxStyle::new(RED, YELLOW, GREEN);
+    let floor_style = FloorStyle::new("floor", CYAN);
+    let solid_style = SolidStyle::new("solid", box_style.clone());
+    let wall_style = WallStyle::new("wall", box_style, 10);
+    let style = Style::new_simple(floor_style, solid_style, wall_style, BLACK);
     let svg_size = viewer.get_size(tilemap.get_size());
     let mut builder = SvgBuilder::new(svg_size);
 

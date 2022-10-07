@@ -13,8 +13,8 @@ pub trait View {
 
     /// Renders a [`tilemap`](crate::tilemap::tilemap2d::Tilemap2d) with a specific [`renderer`](crate::port::renderer::Renderer)
     /// & [`style`](crate::renderer::style::Style).
-    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style);
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &Style);
 
     /// Renders the grid for the tiles.
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style);
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, styles: &Style);
 }

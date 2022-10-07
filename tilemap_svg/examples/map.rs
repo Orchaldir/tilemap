@@ -1,7 +1,7 @@
 extern crate tilemap;
 extern crate tilemap_svg;
 
-use tilemap::math::color::{BLACK, CYAN, GREEN, RED, YELLOW};
+use tilemap::math::color::{BLACK, CYAN, GREEN, ORANGE, RED, YELLOW};
 use tilemap::math::side::Side;
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::aab::BoxStyle;
@@ -33,25 +33,6 @@ fn main() {
     render(&three_four, &tilemap, "test_34.svg");
     render(&top_down, &tilemap, "test_top.svg");
 }
-
-fn create_tile_example() -> Tilemap2d {
-    let tiles = Size2d::new(3, 3);
-    let mut tilemap = Tilemap2d::default(tiles, Tile::Empty).unwrap();
-
-    for i in 0..tiles.count() {
-        tilemap.set_tile(
-            i,
-            if i % 2 == 0 {
-                Tile::Floor(1)
-            } else {
-                Tile::Solid(3)
-            },
-        );
-    }
-
-    tilemap
-}
-
 fn create_wall_example() -> Tilemap2d {
     let tiles = Size2d::new(12, 6);
     let mut tilemap = Tilemap2d::default(tiles, Tile::Floor(0)).unwrap();
@@ -96,7 +77,7 @@ fn create_wall_example() -> Tilemap2d {
 fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let box_style = BoxStyle::new(RED, YELLOW, GREEN);
     let floor_style = FloorStyle::new("floor", CYAN);
-    let solid_style = SolidStyle::new("solid", box_style.clone());
+    let solid_style = SolidStyle::new("solid", BoxStyle::shaded(ORANGE));
     let wall_style = WallStyle::new("wall", box_style, 10);
     let style = Style::new_simple(floor_style, solid_style, wall_style, BLACK);
     let svg_size = viewer.get_size(tilemap.get_size());

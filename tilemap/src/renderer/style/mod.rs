@@ -1,5 +1,7 @@
 use crate::math::color::Color;
 
+mod wall;
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Style {
     Simple {

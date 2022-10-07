@@ -1,6 +1,7 @@
 use crate::math::color::Color;
 
 mod floor;
+mod solid;
 mod wall;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

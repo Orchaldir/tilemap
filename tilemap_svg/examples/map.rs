@@ -1,14 +1,14 @@
 extern crate tilemap;
 extern crate tilemap_svg;
 
-use tilemap::math::color::{Color, BLACK, BLUE, CYAN, GREEN, ORANGE, RED, YELLOW};
+use tilemap::math::color::{BLACK, BLUE, CYAN, GREEN, ORANGE, RED, YELLOW};
 use tilemap::math::side::Side;
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::aab::BoxStyle;
 use tilemap::renderer::style::floor::FloorStyle;
 use tilemap::renderer::style::solid::SolidStyle;
 use tilemap::renderer::style::wall::WallStyle;
-use tilemap::renderer::style::Style;
+use tilemap::renderer::style::StyleMgr;
 use tilemap::renderer::view::isometric::IsometricView;
 use tilemap::renderer::view::three_four::ThreeFourView;
 use tilemap::renderer::view::top_down::TopDownView;
@@ -16,7 +16,6 @@ use tilemap::renderer::view::View;
 use tilemap::tilemap::border::Border;
 use tilemap::tilemap::tile::Tile;
 use tilemap::tilemap::tilemap2d::Tilemap2d;
-use tilemap::utils::resource::ResourceManager;
 use tilemap_svg::renderer::SvgBuilder;
 
 fn main() {
@@ -82,7 +81,7 @@ fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let solid_style0 = SolidStyle::new("solid0", BoxStyle::shaded(ORANGE));
     let solid_style1 = SolidStyle::new("solid1", BoxStyle::shaded(BLUE));
     let wall_style = WallStyle::new("wall", box_style, 10);
-    let style = Style::without_manager(
+    let style = StyleMgr::without_manager(
         vec![floor_style],
         vec![solid_style0, solid_style1],
         vec![wall_style],

@@ -4,7 +4,7 @@ use crate::math::side::Side;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
 use crate::renderer::style::aab::BoxStyle;
-use crate::renderer::style::Style;
+use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
 use crate::tilemap::border::Border;
 use crate::tilemap::tile::Tile;
@@ -21,7 +21,7 @@ impl View for IsometricView {
         self.calculate_floor_size(tiles) + Size2d::new(0, self.tile_height as u32)
     }
 
-    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &Style) {
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
         let mut start = self.get_start(tiles);
         let mut index = 0;
@@ -97,7 +97,7 @@ impl View for IsometricView {
         }
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &StyleMgr) {
         self.render_grid_rows(tiles, renderer, style);
         self.render_grid_columns(tiles, renderer, style);
     }
@@ -229,7 +229,7 @@ impl IsometricView {
     }
 
     /// Render the lines of the grid between columns.
-    fn render_grid_columns(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid_columns(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &StyleMgr) {
         let start = self.get_start(tiles);
         let mut start_column = self.get_right(start);
         let diff_column = self.get_diff_column(tiles);
@@ -244,7 +244,7 @@ impl IsometricView {
     }
 
     /// Render the lines of the grid between rows.
-    fn render_grid_rows(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid_rows(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &StyleMgr) {
         let start = self.get_start(tiles);
         let mut start_row = self.get_left(start);
         let diff_row = self.get_diff_row(tiles);

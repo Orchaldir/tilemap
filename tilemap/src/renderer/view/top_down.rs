@@ -2,7 +2,7 @@ use crate::math::color::Color;
 use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
-use crate::renderer::style::Style;
+use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
 use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
 use crate::tilemap::tile::Tile;
@@ -18,13 +18,13 @@ impl View for TopDownView {
         tiles * self.tile_size
     }
 
-    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &Style) {
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         self.render_tiles(tilemap, renderer, styles);
         self.render_horizontal_borders(tilemap, renderer, styles);
         self.render_vertical_borders(tilemap, renderer, styles);
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, styles: &Style) {
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let size = self.get_size(tiles);
 
         for row in 0..(tiles.height() - 1) {
@@ -52,7 +52,7 @@ impl TopDownView {
         TopDownView { tile_size }
     }
 
-    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &Style) {
+    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
         let mut y = 0;
         let mut index = 0;
@@ -89,7 +89,7 @@ impl TopDownView {
         &self,
         tilemap: &Tilemap2d,
         renderer: &mut dyn Renderer,
-        styles: &Style,
+        styles: &StyleMgr,
     ) {
         let size = get_horizontal_borders_size(tilemap.get_size());
         let borders = tilemap.get_horizontal_borders();
@@ -127,7 +127,7 @@ impl TopDownView {
         &self,
         tilemap: &Tilemap2d,
         renderer: &mut dyn Renderer,
-        styles: &Style,
+        styles: &StyleMgr,
     ) {
         let size = get_vertical_borders_size(tilemap.get_size());
         let borders = tilemap.get_vertical_borders();

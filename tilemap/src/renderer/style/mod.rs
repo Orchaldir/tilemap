@@ -12,14 +12,14 @@ pub mod solid;
 pub mod wall;
 
 #[derive(Debug)]
-pub struct Style {
+pub struct StyleMgr {
     floors: ResourceManager<FloorStyle>,
     solids: ResourceManager<SolidStyle>,
     walls: ResourceManager<WallStyle>,
     grid: Color,
 }
 
-impl Style {
+impl StyleMgr {
     /// Many styles per type.
     pub fn new(
         floors: ResourceManager<FloorStyle>,
@@ -27,7 +27,7 @@ impl Style {
         walls: ResourceManager<WallStyle>,
         grid: Color,
     ) -> Self {
-        Style {
+        StyleMgr {
             floors,
             solids,
             walls,
@@ -41,7 +41,7 @@ impl Style {
         walls: Vec<WallStyle>,
         grid: Color,
     ) -> Self {
-        Style {
+        StyleMgr {
             floors: ResourceManager::with_default(floors),
             solids: ResourceManager::with_default(solids),
             walls: ResourceManager::with_default(walls),
@@ -51,7 +51,7 @@ impl Style {
 
     /// Only one style per type.
     pub fn one_style(floor: FloorStyle, solid: SolidStyle, wall: WallStyle, grid: Color) -> Self {
-        Style {
+        StyleMgr {
             floors: ResourceManager::new(Vec::new(), floor),
             solids: ResourceManager::new(Vec::new(), solid),
             walls: ResourceManager::new(Vec::new(), wall),

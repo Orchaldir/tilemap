@@ -35,8 +35,22 @@ impl Style {
         }
     }
 
+    pub fn without_manager(
+        floors: Vec<FloorStyle>,
+        solids: Vec<SolidStyle>,
+        walls: Vec<WallStyle>,
+        grid: Color,
+    ) -> Self {
+        Style {
+            floors: ResourceManager::with_default(floors),
+            solids: ResourceManager::with_default(solids),
+            walls: ResourceManager::with_default(walls),
+            grid,
+        }
+    }
+
     /// Only one style per type.
-    pub fn new_simple(floor: FloorStyle, solid: SolidStyle, wall: WallStyle, grid: Color) -> Self {
+    pub fn one_style(floor: FloorStyle, solid: SolidStyle, wall: WallStyle, grid: Color) -> Self {
         Style {
             floors: ResourceManager::new(Vec::new(), floor),
             solids: ResourceManager::new(Vec::new(), solid),

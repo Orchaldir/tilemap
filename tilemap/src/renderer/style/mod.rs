@@ -2,6 +2,8 @@ use crate::math::color::Color;
 use crate::renderer::style::floor::FloorStyle;
 use crate::renderer::style::solid::SolidStyle;
 use crate::renderer::style::wall::WallStyle;
+use crate::tilemap::border::WallId;
+use crate::tilemap::tile::{FloorId, SolidId};
 
 pub mod aab;
 pub mod floor;
@@ -28,19 +30,19 @@ impl Style {
         }
     }
 
-    pub fn get_floor_style(&self) -> &FloorStyle {
+    pub fn get_floor_style(&self, id: FloorId) -> &FloorStyle {
         match self {
             Style::Simple { floor, .. } => floor,
         }
     }
 
-    pub fn get_solid_style(&self) -> &SolidStyle {
+    pub fn get_solid_style(&self, id: SolidId) -> &SolidStyle {
         match self {
             Style::Simple { solid, .. } => solid,
         }
     }
 
-    pub fn get_wall_style(&self) -> &WallStyle {
+    pub fn get_wall_style(&self, id: WallId) -> &WallStyle {
         match self {
             Style::Simple { wall, .. } => wall,
         }

@@ -65,14 +65,14 @@ impl TopDownView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(
+                    Tile::Floor(id) => self.render_tile(
                         renderer,
                         x,
                         y,
-                        *styles.get_floor_style().get_floor_color(),
+                        *styles.get_floor_style(id).get_floor_color(),
                     ),
-                    Tile::Solid(_id) => {
-                        let color = styles.get_solid_style().get_aab_style().get_top_color();
+                    Tile::Solid(id) => {
+                        let color = styles.get_solid_style(id).get_aab_style().get_top_color();
                         self.render_tile(renderer, x, y, *color)
                     }
                 }
@@ -103,8 +103,8 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let style = styles.get_wall_style();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
                         renderer.render_rectangle(
                             x,
@@ -141,8 +141,8 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let style = styles.get_wall_style();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
                         renderer.render_rectangle(
                             (x - thickness as i32 / 2) as u32,

@@ -34,13 +34,13 @@ impl View for IsometricView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(
+                    Tile::Floor(id) => self.render_tile(
                         renderer,
                         point,
-                        *styles.get_floor_style().get_floor_color(),
+                        *styles.get_floor_style(id).get_floor_color(),
                     ),
-                    Tile::Solid(_id) => {
-                        let style = styles.get_solid_style();
+                    Tile::Solid(id) => {
+                        let style = styles.get_solid_style(id);
                         self.render_box(
                             renderer,
                             point,
@@ -53,8 +53,8 @@ impl View for IsometricView {
 
                 match tilemap.get_border(index, Side::Back) {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let style = styles.get_wall_style();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let delta_half = Self::calculate_delta(thickness / 2);
                         let back = self.get_reverse_left_box(point, delta_half);
@@ -71,8 +71,8 @@ impl View for IsometricView {
 
                 match tilemap.get_border(index, Side::Left) {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let style = styles.get_wall_style();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let delta_half = Self::calculate_delta(thickness / 2);
                         let left = self.get_reverse_right_box(point, delta_half);

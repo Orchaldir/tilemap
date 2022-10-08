@@ -74,20 +74,20 @@ impl ThreeFourView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(
+                    Tile::Floor(id) => self.render_tile(
                         renderer,
                         x,
                         y,
-                        *styles.get_floor_style().get_floor_color(),
+                        *styles.get_floor_style(id).get_floor_color(),
                     ),
-                    Tile::Solid(_id) => {
+                    Tile::Solid(id) => {
                         self.render_aabb(
                             renderer,
                             x,
                             y - self.tile_height,
                             self.tile_size.width(),
                             self.tile_size.height(),
-                            styles.get_solid_style().get_aab_style(),
+                            styles.get_solid_style(id).get_aab_style(),
                         );
                     }
                 }
@@ -118,8 +118,8 @@ impl ThreeFourView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let style = styles.get_wall_style();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
 
                         self.render_aabb(
@@ -159,8 +159,8 @@ impl ThreeFourView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let style = styles.get_wall_style();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
 
                         self.render_aabb(

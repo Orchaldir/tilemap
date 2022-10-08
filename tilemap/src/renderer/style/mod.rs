@@ -20,6 +20,21 @@ pub struct Style {
 }
 
 impl Style {
+    /// Many styles per type.
+    pub fn new(
+        floors: ResourceManager<FloorStyle>,
+        solids: ResourceManager<SolidStyle>,
+        walls: ResourceManager<WallStyle>,
+        grid: Color,
+    ) -> Self {
+        Style {
+            floors,
+            solids,
+            walls,
+            grid,
+        }
+    }
+
     /// Only one style per type.
     pub fn new_simple(floor: FloorStyle, solid: SolidStyle, wall: WallStyle, grid: Color) -> Self {
         Style {

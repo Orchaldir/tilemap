@@ -15,6 +15,13 @@ impl<T: Resource> ResourceManager<T> {
         ResourceManager { default, resources }
     }
 
+    pub fn with_default(resources: Vec<T>) -> ResourceManager<T> {
+        ResourceManager {
+            default: T::default(),
+            resources,
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
         self.resources.is_empty()
     }

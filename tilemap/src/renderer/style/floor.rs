@@ -1,4 +1,5 @@
-use crate::math::color::Color;
+use crate::math::color::{Color, PINK};
+use crate::utils::resource::Resource;
 
 /// Defines how to render a [`floor tile`](crate::tilemap::tile::Tile::Floor).
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -17,5 +18,17 @@ impl FloorStyle {
 
     pub fn get_floor_color(&self) -> &Color {
         &self.floor
+    }
+}
+
+impl Default for FloorStyle {
+    fn default() -> Self {
+        Self::new("default", PINK)
+    }
+}
+
+impl Resource for FloorStyle {
+    fn get_name(&self) -> &str {
+        &self.name
     }
 }

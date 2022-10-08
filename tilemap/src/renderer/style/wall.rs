@@ -1,4 +1,6 @@
+use crate::math::color::PINK;
 use crate::renderer::style::aab::BoxStyle;
+use crate::utils::resource::Resource;
 
 /// Defines how to render a [`wall`](crate::tilemap::border::Border::Wall).
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -23,5 +25,17 @@ impl WallStyle {
 
     pub fn get_thickness(&self) -> u32 {
         self.thickness
+    }
+}
+
+impl Default for WallStyle {
+    fn default() -> Self {
+        Self::new("default", BoxStyle::shaded(PINK), 1)
+    }
+}
+
+impl Resource for WallStyle {
+    fn get_name(&self) -> &str {
+        &self.name
     }
 }

@@ -2,7 +2,7 @@ use crate::math::color::Color;
 use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
-use crate::renderer::style::Style;
+use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
 use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
 use crate::tilemap::tile::Tile;
@@ -18,13 +18,13 @@ impl View for TopDownView {
         tiles * self.tile_size
     }
 
-    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
-        self.render_tiles(tilemap, renderer, style);
-        self.render_horizontal_borders(tilemap, renderer, style);
-        self.render_vertical_borders(tilemap, renderer, style);
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
+        self.render_tiles(tilemap, renderer, styles);
+        self.render_horizontal_borders(tilemap, renderer, styles);
+        self.render_vertical_borders(tilemap, renderer, styles);
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let size = self.get_size(tiles);
 
         for row in 0..(tiles.height() - 1) {
@@ -32,7 +32,7 @@ impl View for TopDownView {
             renderer.render_line(
                 Point2d::new(0, y),
                 Point2d::new(size.width() as i32, y),
-                *style.get_grid_color(),
+                *styles.get_grid_color(),
             );
         }
 
@@ -41,7 +41,7 @@ impl View for TopDownView {
             renderer.render_line(
                 Point2d::new(x, 0),
                 Point2d::new(x, size.height() as i32),
-                *style.get_grid_color(),
+                *styles.get_grid_color(),
             );
         }
     }
@@ -52,7 +52,7 @@ impl TopDownView {
         TopDownView { tile_size }
     }
 
-    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
         let mut y = 0;
         let mut index = 0;
@@ -65,8 +65,16 @@ impl TopDownView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => self.render_tile(renderer, x, y, *style.get_top_color()),
+                    Tile::Floor(id) => self.render_tile(
+                        renderer,
+                        x,
+                        y,
+                        *styles.get_floor_style(id).get_floor_color(),
+                    ),
+                    Tile::Solid(id) => {
+                        let color = styles.get_solid_style(id).get_aab_style().get_top_color();
+                        self.render_tile(renderer, x, y, *color)
+                    }
                 }
 
                 x += self.tile_size.width();
@@ -81,7 +89,7 @@ impl TopDownView {
         &self,
         tilemap: &Tilemap2d,
         renderer: &mut dyn Renderer,
-        style: &Style,
+        styles: &StyleMgr,
     ) {
         let size = get_horizontal_borders_size(tilemap.get_size());
         let borders = tilemap.get_horizontal_borders();
@@ -95,13 +103,14 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
                         renderer.render_rectangle(
                             x,
                             (y - thickness as i32 / 2) as u32,
                             Size2d::new(self.tile_size.width(), thickness),
-                            *style.get_top_color(),
+                            *style.get_aab_style().get_top_color(),
                         )
                     }
                 }
@@ -118,7 +127,7 @@ impl TopDownView {
         &self,
         tilemap: &Tilemap2d,
         renderer: &mut dyn Renderer,
-        style: &Style,
+        styles: &StyleMgr,
     ) {
         let size = get_vertical_borders_size(tilemap.get_size());
         let borders = tilemap.get_vertical_borders();
@@ -132,13 +141,14 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
                         renderer.render_rectangle(
                             (x - thickness as i32 / 2) as u32,
                             y,
                             Size2d::new(thickness, self.tile_size.height()),
-                            *style.get_top_color(),
+                            *style.get_aab_style().get_top_color(),
                         )
                     }
                 }

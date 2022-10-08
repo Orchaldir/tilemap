@@ -1,12 +1,14 @@
 use crate::math::size2d::Size2d;
 
+pub type WallId = usize;
+
 /// The border between 2 [`tiles`](crate::tilemap::tile::Tile).
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Border {
     /// No border between the 2 tiles.
     Empty,
     /// A wall blocks the border between the 2 tiles.
-    Wall(usize),
+    Wall(WallId),
 }
 
 /// Returns the size of the horizontal [`borders`](Border) based on the size of the [`tilemap`](crate::tilemap::tilemap2d::Tilemap2d).

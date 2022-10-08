@@ -1,4 +1,5 @@
 use anyhow::{bail, Context, Result};
+use std::ops::Mul;
 
 /// Represents a color with the RGB color model.
 ///
@@ -106,6 +107,28 @@ impl Color {
 impl Default for Color {
     fn default() -> Self {
         PINK
+    }
+}
+
+/// Multiplies a [`Color`] with a float and returns a new color.
+///
+/// ```
+///# use tilemap::math::color::Color;
+/// let vector = Color::from_rgb(0, 100, 255);
+///
+/// assert_eq!(vector * -1.0, Color::from_rgb(0, 0, 0));
+/// assert_eq!(vector * 0.5, Color::from_rgb(0, 50, 127));
+/// assert_eq!(vector * 2.0, Color::from_rgb(0, 200, 255));
+/// ```
+impl Mul<f32> for Color {
+    type Output = Self;
+
+    fn mul(self, value: f32) -> Color {
+        Color::from_rgb(
+            (self.r as f32 * value) as u8,
+            (self.g as f32 * value) as u8,
+            (self.b as f32 * value) as u8,
+        )
     }
 }
 

@@ -3,7 +3,8 @@ use crate::math::point2d::Point2d;
 use crate::math::side::Side;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
-use crate::renderer::style::Style;
+use crate::renderer::style::aab::BoxStyle;
+use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
 use crate::tilemap::border::Border;
 use crate::tilemap::tile::Tile;
@@ -20,7 +21,7 @@ impl View for IsometricView {
         self.calculate_floor_size(tiles) + Size2d::new(0, self.tile_height as u32)
     }
 
-    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
         let mut start = self.get_start(tiles);
         let mut index = 0;
@@ -33,40 +34,55 @@ impl View for IsometricView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, point, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
-                        self.render_box(renderer, point, self.delta, self.delta, style)
+                    Tile::Floor(id) => self.render_tile(
+                        renderer,
+                        point,
+                        *styles.get_floor_style(id).get_floor_color(),
+                    ),
+                    Tile::Solid(id) => {
+                        let style = styles.get_solid_style(id);
+                        self.render_box(
+                            renderer,
+                            point,
+                            self.delta,
+                            self.delta,
+                            style.get_aab_style(),
+                        )
                     }
                 }
 
                 match tilemap.get_border(index, Side::Back) {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(id);
+                        let thickness = style.get_thickness();
                         let delta_half = Self::calculate_delta(thickness / 2);
                         let back = self.get_reverse_left_box(point, delta_half);
+
                         self.render_box(
                             renderer,
                             back,
                             self.delta,
                             Self::calculate_delta(thickness),
-                            style,
+                            style.get_aab_style(),
                         );
                     }
                 }
 
                 match tilemap.get_border(index, Side::Left) {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(id);
+                        let thickness = style.get_thickness();
                         let delta_half = Self::calculate_delta(thickness / 2);
                         let left = self.get_reverse_right_box(point, delta_half);
+
                         self.render_box(
                             renderer,
                             left,
                             Self::calculate_delta(thickness),
                             self.delta,
-                            style,
+                            style.get_aab_style(),
                         );
                     }
                 }
@@ -81,7 +97,7 @@ impl View for IsometricView {
         }
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &StyleMgr) {
         self.render_grid_rows(tiles, renderer, style);
         self.render_grid_columns(tiles, renderer, style);
     }
@@ -136,7 +152,7 @@ impl IsometricView {
         back: Point2d,
         delta_row: Point2d,
         delta_column: Point2d,
-        style: &Style,
+        style: &BoxStyle,
     ) {
         self.render_ceiling(
             renderer,
@@ -213,7 +229,7 @@ impl IsometricView {
     }
 
     /// Render the lines of the grid between columns.
-    fn render_grid_columns(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid_columns(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &StyleMgr) {
         let start = self.get_start(tiles);
         let mut start_column = self.get_right(start);
         let diff_column = self.get_diff_column(tiles);
@@ -228,7 +244,7 @@ impl IsometricView {
     }
 
     /// Render the lines of the grid between rows.
-    fn render_grid_rows(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid_rows(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &StyleMgr) {
         let start = self.get_start(tiles);
         let mut start_row = self.get_left(start);
         let diff_row = self.get_diff_row(tiles);

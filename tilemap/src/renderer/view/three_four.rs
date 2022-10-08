@@ -2,7 +2,8 @@ use crate::math::color::Color;
 use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
-use crate::renderer::style::Style;
+use crate::renderer::style::aab::BoxStyle;
+use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
 use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
 use crate::tilemap::tile::Tile;
@@ -19,13 +20,13 @@ impl View for ThreeFourView {
         tiles * self.tile_size + Size2d::new(0, self.tile_height)
     }
 
-    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
-        self.render_tiles(tilemap, renderer, style);
-        self.render_horizontal_borders(tilemap, renderer, style);
-        self.render_vertical_borders(tilemap, renderer, style);
+    fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
+        self.render_tiles(tilemap, renderer, styles);
+        self.render_horizontal_borders(tilemap, renderer, styles);
+        self.render_vertical_borders(tilemap, renderer, styles);
     }
 
-    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_grid(&self, tiles: Size2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let size = self.get_size(tiles);
         let mut y = self.tile_height + self.tile_size.height();
 
@@ -33,7 +34,7 @@ impl View for ThreeFourView {
             renderer.render_line(
                 Point2d::new(0, y as i32),
                 Point2d::new(size.width() as i32, y as i32),
-                *style.get_grid_color(),
+                *styles.get_grid_color(),
             );
 
             y += self.tile_size.height();
@@ -46,7 +47,7 @@ impl View for ThreeFourView {
             renderer.render_line(
                 Point2d::new(x, y as i32),
                 Point2d::new(x, size.height() as i32),
-                *style.get_grid_color(),
+                *styles.get_grid_color(),
             );
         }
     }
@@ -60,7 +61,7 @@ impl ThreeFourView {
         }
     }
 
-    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, style: &Style) {
+    fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
         let mut y = self.tile_height;
         let mut index = 0;
@@ -73,15 +74,20 @@ impl ThreeFourView {
 
                 match tile {
                     Tile::Empty => {}
-                    Tile::Floor(_id) => self.render_tile(renderer, x, y, *style.get_floor_color()),
-                    Tile::Solid(_id) => {
+                    Tile::Floor(id) => self.render_tile(
+                        renderer,
+                        x,
+                        y,
+                        *styles.get_floor_style(id).get_floor_color(),
+                    ),
+                    Tile::Solid(id) => {
                         self.render_aabb(
                             renderer,
                             x,
                             y - self.tile_height,
                             self.tile_size.width(),
                             self.tile_size.height(),
-                            style,
+                            styles.get_solid_style(id).get_aab_style(),
                         );
                     }
                 }
@@ -98,7 +104,7 @@ impl ThreeFourView {
         &self,
         tilemap: &Tilemap2d,
         renderer: &mut dyn Renderer,
-        style: &Style,
+        styles: &StyleMgr,
     ) {
         let size = get_horizontal_borders_size(tilemap.get_size());
         let borders = tilemap.get_horizontal_borders();
@@ -112,8 +118,9 @@ impl ThreeFourView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
 
                         self.render_aabb(
                             renderer,
@@ -121,7 +128,7 @@ impl ThreeFourView {
                             y - thickness / 2,
                             self.tile_size.width(),
                             thickness,
-                            style,
+                            style.get_aab_style(),
                         );
                     }
                 }
@@ -138,7 +145,7 @@ impl ThreeFourView {
         &self,
         tilemap: &Tilemap2d,
         renderer: &mut dyn Renderer,
-        style: &Style,
+        styles: &StyleMgr,
     ) {
         let size = get_vertical_borders_size(tilemap.get_size());
         let borders = tilemap.get_vertical_borders();
@@ -152,15 +159,17 @@ impl ThreeFourView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::Empty => {}
-                    Border::Wall(_) => {
-                        let thickness = style.get_wall_thickness();
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
+
                         self.render_aabb(
                             renderer,
                             x - thickness / 2,
                             y,
                             thickness,
                             self.tile_size.height(),
-                            style,
+                            style.get_aab_style(),
                         );
                     }
                 }
@@ -180,7 +189,7 @@ impl ThreeFourView {
         y: u32,
         size_x: u32,
         size_y: u32,
-        style: &Style,
+        style: &BoxStyle,
     ) {
         // render top
 

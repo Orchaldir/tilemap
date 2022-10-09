@@ -5,8 +5,28 @@ use map_macro::set;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 
+/// Calculates the [`wall styles`](crate::renderer::style::wall::WallStyle) with the highest count.
+fn get_top_styles(input: HashMap<WallId, HashSet<Side>>) -> Vec<(WallId, HashSet<Side>)> {
+    let mut max_count = 0;
+    let mut top_styles = Vec::new();
+
+    for entry in input {
+        let count = entry.1.len();
+
+        if count > max_count {
+            max_count = count;
+            top_styles.clear();
+            top_styles.push(entry);
+        } else if count > 0 && count == max_count {
+            top_styles.push(entry);
+        }
+    }
+
+    top_styles
+}
+
 /// Calculates how many sides each [`wall style`](crate::renderer::style::wall::WallStyle) has at a node.
-pub fn calculate_sides_per_style(
+fn calculate_sides_per_style(
     tilemap: &Tilemap2d,
     node_index: usize,
 ) -> HashMap<WallId, HashSet<Side>> {
@@ -40,6 +60,34 @@ mod tests {
     use crate::tilemap::border::Border::Wall;
     use crate::tilemap::tile::Tile::Empty;
     use map_macro::map;
+
+    #[test]
+    fn test_get_top_styles_empty() {
+        assert_eq!(get_top_styles(HashMap::new()), Vec::new());
+    }
+
+    #[test]
+    fn test_get_top_styles_one() {
+        assert_eq!(
+            get_top_styles(map! {
+            1 => set![Back, Left],
+            2 => set![Right],
+            }),
+            vec![(1, set![Back, Left])]
+        );
+    }
+
+    #[test]
+    fn test_get_top_styles_two() {
+        let top_styles = get_top_styles(map! {
+        1 => set![Back, Left],
+        2 => set![Right, Front],
+        });
+
+        assert_eq!(2, top_styles.len());
+        assert!(top_styles.contains(&(1, set![Back, Left])));
+        assert!(top_styles.contains(&(2, set![Right, Front])));
+    }
 
     #[test]
     fn test_get_border_at_node() {

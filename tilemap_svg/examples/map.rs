@@ -6,6 +6,7 @@ use tilemap::math::side::Side;
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::aab::BoxStyle;
 use tilemap::renderer::style::floor::FloorStyle;
+use tilemap::renderer::style::node::NodeStyle;
 use tilemap::renderer::style::solid::SolidStyle;
 use tilemap::renderer::style::wall::WallStyle;
 use tilemap::renderer::style::StyleMgr;
@@ -79,7 +80,8 @@ fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let floor_style = FloorStyle::new("floor", GREEN);
     let solid_style0 = SolidStyle::new("solid0", BoxStyle::shaded(ORANGE));
     let solid_style1 = SolidStyle::new("solid1", BoxStyle::shaded(BLUE));
-    let wall_style = WallStyle::new("wall", BoxStyle::shaded(WHITE));
+    let node_style = NodeStyle::new("node", BoxStyle::shaded(WHITE));
+    let wall_style = WallStyle::new("wall", BoxStyle::shaded(WHITE), node_style);
     let style = StyleMgr::without_manager(
         vec![floor_style],
         vec![solid_style0, solid_style1],

@@ -11,6 +11,15 @@ pub enum Border {
     Wall(WallId),
 }
 
+impl Border {
+    pub fn get_wall_style(&self) -> Option<WallId> {
+        match self {
+            Border::NoBorder => None,
+            Border::Wall(id) => Some(*id),
+        }
+    }
+}
+
 /// Returns the size of the horizontal [`borders`](Border) based on the size of the [`tilemap`](crate::tilemap::tilemap2d::Tilemap2d).
 pub fn get_horizontal_borders_size(size: Size2d) -> Size2d {
     Size2d::new(size.width(), size.height() + 1)
@@ -39,4 +48,18 @@ pub fn in_front_of_tile(size: Size2d, tile_index: usize) -> usize {
 /// Returns the index of the vertical [`Border`] to the right of the [`tile`](crate::tilemap::tile::Tile).
 pub fn right_of_tile(size: Size2d, tile_index: usize) -> usize {
     left_of_tile(size, tile_index) + 1
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use Border::*;
+
+    const WALL: Border = Wall(42);
+
+    #[test]
+    fn test_get_wall_style() {
+        assert_eq!(NoBorder.get_wall_style(), None);
+        assert_eq!(WALL.get_wall_style(), Some(42));
+    }
 }

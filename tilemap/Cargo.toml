@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0"
+map-macro = "0.2.4"
 svgbobdoc = "0.2"

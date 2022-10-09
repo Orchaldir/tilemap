@@ -8,6 +8,7 @@ use crate::utils::resource::ResourceManager;
 
 pub mod aab;
 pub mod floor;
+pub mod node;
 pub mod solid;
 pub mod wall;
 

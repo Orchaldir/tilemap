@@ -1,12 +1,23 @@
 use crate::math::side::Side;
 use crate::tilemap::border::WallId;
 use crate::tilemap::tilemap2d::Tilemap2d;
-use map_macro::set;
 use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+
+/// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at the node.
+pub fn calculate_dominant_wall_style(tilemap: &Tilemap2d, index: usize) -> Option<WallId> {
+    let sides_per_style = calculate_sides_per_style(tilemap, index);
+    let top_styles = get_top_styles(sides_per_style);
+
+    match top_styles.len() {
+        1 => Some(top_styles[0].0),
+        n if n > 1 => top_styles.iter().map(|s| s.0).min(),
+        _ => None,
+    }
+}
 
 /// Calculates the [`wall styles`](crate::renderer::style::wall::WallStyle) with the highest count.
-fn get_top_styles(input: HashMap<WallId, HashSet<Side>>) -> Vec<(WallId, HashSet<Side>)> {
+fn get_top_styles(input: HashMap<WallId, Vec<Side>>) -> Vec<(WallId, Vec<Side>)> {
     let mut max_count = 0;
     let mut top_styles = Vec::new();
 
@@ -26,10 +37,7 @@ fn get_top_styles(input: HashMap<WallId, HashSet<Side>>) -> Vec<(WallId, HashSet
 }
 
 /// Calculates how many sides each [`wall style`](crate::renderer::style::wall::WallStyle) has at a node.
-fn calculate_sides_per_style(
-    tilemap: &Tilemap2d,
-    node_index: usize,
-) -> HashMap<WallId, HashSet<Side>> {
+fn calculate_sides_per_style(tilemap: &Tilemap2d, node_index: usize) -> HashMap<WallId, Vec<Side>> {
     let mut wall_styles = HashMap::new();
 
     for side in Side::iterator() {
@@ -40,10 +48,10 @@ fn calculate_sides_per_style(
         if let Some(id) = wall_style {
             match wall_styles.entry(id) {
                 Entry::Vacant(e) => {
-                    e.insert(set![*side]);
+                    e.insert(vec![*side]);
                 }
                 Entry::Occupied(mut e) => {
-                    e.get_mut().insert(*side);
+                    e.get_mut().push(*side);
                 }
             }
         }
@@ -62,6 +70,47 @@ mod tests {
     use map_macro::map;
 
     #[test]
+    fn test_wall_style_twice_at_node_dominates() {
+        let size = Size2d::new(2, 2);
+        let mut tilemap = Tilemap2d::default(size, Empty).unwrap();
+
+        tilemap.set_border(2, Back, Wall(2));
+        tilemap.set_border(3, Back, Wall(2));
+        tilemap.set_border(3, Left, Wall(3));
+
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 0), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 1), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 2), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 3), Some(2));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 4), Some(2));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 5), Some(2));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 6), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 7), Some(3));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 8), None);
+    }
+
+    #[test]
+    fn test_four_different_wall_styles_at_node() {
+        let size = Size2d::new(2, 2);
+        let mut tilemap = Tilemap2d::default(size, Empty).unwrap();
+
+        tilemap.set_border(1, Left, Wall(13));
+        tilemap.set_border(2, Back, Wall(12));
+        tilemap.set_border(3, Back, Wall(11));
+        tilemap.set_border(3, Left, Wall(10));
+
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 0), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 1), Some(13));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 2), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 3), Some(12));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 4), Some(10));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 5), Some(11));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 6), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 7), Some(10));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 8), None);
+    }
+
+    #[test]
     fn test_get_top_styles_empty() {
         assert_eq!(get_top_styles(HashMap::new()), Vec::new());
     }
@@ -70,23 +119,23 @@ mod tests {
     fn test_get_top_styles_one() {
         assert_eq!(
             get_top_styles(map! {
-            1 => set![Back, Left],
-            2 => set![Right],
+            1 => vec![Back, Left],
+            2 => vec![Right],
             }),
-            vec![(1, set![Back, Left])]
+            vec![(1, vec![Back, Left])]
         );
     }
 
     #[test]
     fn test_get_top_styles_two() {
         let top_styles = get_top_styles(map! {
-        1 => set![Back, Left],
-        2 => set![Right, Front],
+        1 => vec![Back, Left],
+        2 => vec![Right, Front],
         });
 
         assert_eq!(2, top_styles.len());
-        assert!(top_styles.contains(&(1, set![Back, Left])));
-        assert!(top_styles.contains(&(2, set![Right, Front])));
+        assert!(top_styles.contains(&(1, vec![Back, Left])));
+        assert!(top_styles.contains(&(2, vec![Right, Front])));
     }
 
     #[test]
@@ -102,9 +151,9 @@ mod tests {
         assert_eq!(
             calculate_sides_per_style(&tilemap, 5),
             map! {
-            1 => set![Back, Left],
-            2 => set![Right],
-            3 => set![Front],
+            1 => vec![Back, Left],
+            2 => vec![Right],
+            3 => vec![Front],
             }
         );
     }

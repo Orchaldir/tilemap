@@ -81,9 +81,10 @@ fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let solid_style0 = SolidStyle::new("solid0", BoxStyle::shaded(ORANGE));
     let solid_style1 = SolidStyle::new("solid1", BoxStyle::shaded(BLUE));
     let node_style = NodeStyle::new("node", BoxStyle::shaded(WHITE));
-    let wall_style = WallStyle::new("wall", BoxStyle::shaded(WHITE), node_style);
+    let wall_style = WallStyle::new("wall", BoxStyle::shaded(WHITE), 0);
     let style = StyleMgr::without_manager(
         vec![floor_style],
+        vec![node_style],
         vec![solid_style0, solid_style1],
         vec![wall_style],
         10,

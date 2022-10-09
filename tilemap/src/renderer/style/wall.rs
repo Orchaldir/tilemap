@@ -1,6 +1,6 @@
 use crate::math::color::PINK;
 use crate::renderer::style::aab::BoxStyle;
-use crate::renderer::style::node::NodeStyle;
+use crate::tilemap::NodeId;
 use crate::utils::resource::Resource;
 
 /// Defines how to render a [`wall`](crate::tilemap::border::Border::Wall).
@@ -8,11 +8,11 @@ use crate::utils::resource::Resource;
 pub struct WallStyle {
     name: String,
     aab: BoxStyle,
-    node: NodeStyle,
+    node: NodeId,
 }
 
 impl WallStyle {
-    pub fn new<S: Into<String>>(name: S, aab: BoxStyle, node: NodeStyle) -> Self {
+    pub fn new<S: Into<String>>(name: S, aab: BoxStyle, node: NodeId) -> Self {
         WallStyle {
             name: name.into(),
             aab,
@@ -24,14 +24,14 @@ impl WallStyle {
         &self.aab
     }
 
-    pub fn get_node_style(&self) -> &NodeStyle {
-        &self.node
+    pub fn get_node_style(&self) -> NodeId {
+        self.node
     }
 }
 
 impl Default for WallStyle {
     fn default() -> Self {
-        Self::new("default", BoxStyle::shaded(PINK), NodeStyle::default())
+        Self::new("default", BoxStyle::shaded(PINK), 0)
     }
 }
 

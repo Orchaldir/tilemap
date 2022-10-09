@@ -6,7 +6,7 @@ pub type WallId = usize;
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Border {
     /// No border between the 2 tiles.
-    Empty,
+    NoBorder,
     /// A wall blocks the border between the 2 tiles.
     Wall(WallId),
 }

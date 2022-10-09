@@ -104,7 +104,7 @@ impl TopDownView {
 
             for _x in 0..size.width() {
                 match &borders[index] {
-                    Border::Empty => {}
+                    Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
                         renderer.render_rectangle(
@@ -143,7 +143,7 @@ impl TopDownView {
 
             for _x in 0..size.width() {
                 match &borders[index] {
-                    Border::Empty => {}
+                    Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
                         renderer.render_rectangle(

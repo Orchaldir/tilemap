@@ -55,7 +55,7 @@ impl View for IsometricView {
                 }
 
                 match tilemap.get_border(index, Side::Back) {
-                    Border::Empty => {}
+                    Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
                         let back = self.get_reverse_left_box(point, delta_half);
@@ -71,7 +71,7 @@ impl View for IsometricView {
                 }
 
                 match tilemap.get_border(index, Side::Left) {
-                    Border::Empty => {}
+                    Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
                         let left = self.get_reverse_right_box(point, delta_half);

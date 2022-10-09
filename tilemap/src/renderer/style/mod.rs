@@ -16,6 +16,7 @@ pub struct StyleMgr {
     floors: ResourceManager<FloorStyle>,
     solids: ResourceManager<SolidStyle>,
     walls: ResourceManager<WallStyle>,
+    wall_thickness: u32,
     grid: Color,
 }
 
@@ -25,12 +26,14 @@ impl StyleMgr {
         floors: ResourceManager<FloorStyle>,
         solids: ResourceManager<SolidStyle>,
         walls: ResourceManager<WallStyle>,
+        wall_thickness: u32,
         grid: Color,
     ) -> Self {
         StyleMgr {
             floors,
             solids,
             walls,
+            wall_thickness,
             grid,
         }
     }
@@ -39,24 +42,33 @@ impl StyleMgr {
         floors: Vec<FloorStyle>,
         solids: Vec<SolidStyle>,
         walls: Vec<WallStyle>,
+        wall_thickness: u32,
         grid: Color,
     ) -> Self {
-        StyleMgr {
-            floors: ResourceManager::with_default(floors),
-            solids: ResourceManager::with_default(solids),
-            walls: ResourceManager::with_default(walls),
+        Self::new(
+            ResourceManager::with_default(floors),
+            ResourceManager::with_default(solids),
+            ResourceManager::with_default(walls),
+            wall_thickness,
             grid,
-        }
+        )
     }
 
     /// Only one style per type.
-    pub fn one_style(floor: FloorStyle, solid: SolidStyle, wall: WallStyle, grid: Color) -> Self {
-        StyleMgr {
-            floors: ResourceManager::new(Vec::new(), floor),
-            solids: ResourceManager::new(Vec::new(), solid),
-            walls: ResourceManager::new(Vec::new(), wall),
+    pub fn one_style(
+        floor: FloorStyle,
+        solid: SolidStyle,
+        wall: WallStyle,
+        wall_thickness: u32,
+        grid: Color,
+    ) -> Self {
+        Self::new(
+            ResourceManager::new(Vec::new(), floor),
+            ResourceManager::new(Vec::new(), solid),
+            ResourceManager::new(Vec::new(), wall),
+            wall_thickness,
             grid,
-        }
+        )
     }
 
     pub fn get_floor_style(&self, id: FloorId) -> &FloorStyle {
@@ -69,6 +81,10 @@ impl StyleMgr {
 
     pub fn get_wall_style(&self, id: WallId) -> &WallStyle {
         self.walls.get(id)
+    }
+
+    pub fn get_wall_thickness(&self) -> u32 {
+        self.wall_thickness
     }
 
     pub fn get_grid_color(&self) -> &Color {

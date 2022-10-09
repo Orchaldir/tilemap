@@ -1,7 +1,7 @@
 extern crate tilemap;
 extern crate tilemap_svg;
 
-use tilemap::math::color::{BLACK, BLUE, CYAN, GREEN, ORANGE, RED, WHITE, YELLOW};
+use tilemap::math::color::{BLACK, BLUE, GREEN, ORANGE, WHITE};
 use tilemap::math::side::Side;
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::aab::BoxStyle;
@@ -79,11 +79,12 @@ fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let floor_style = FloorStyle::new("floor", GREEN);
     let solid_style0 = SolidStyle::new("solid0", BoxStyle::shaded(ORANGE));
     let solid_style1 = SolidStyle::new("solid1", BoxStyle::shaded(BLUE));
-    let wall_style = WallStyle::new("wall", BoxStyle::shaded(WHITE), 10);
+    let wall_style = WallStyle::new("wall", BoxStyle::shaded(WHITE));
     let style = StyleMgr::without_manager(
         vec![floor_style],
         vec![solid_style0, solid_style1],
         vec![wall_style],
+        10,
         BLACK,
     );
     let svg_size = viewer.get_size(tilemap.get_size());

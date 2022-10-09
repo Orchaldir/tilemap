@@ -93,6 +93,8 @@ impl TopDownView {
     ) {
         let size = get_horizontal_borders_size(tilemap.get_size());
         let borders = tilemap.get_horizontal_borders();
+        let thickness = styles.get_wall_thickness();
+        let wall_size = Size2d::new(self.tile_size.width(), thickness);
 
         let mut y = 0i32;
         let mut index = 0;
@@ -105,11 +107,10 @@ impl TopDownView {
                     Border::Empty => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
-                        let thickness = style.get_thickness();
                         renderer.render_rectangle(
                             x,
                             (y - thickness as i32 / 2) as u32,
-                            Size2d::new(self.tile_size.width(), thickness),
+                            wall_size,
                             *style.get_aab_style().get_top_color(),
                         )
                     }
@@ -131,6 +132,8 @@ impl TopDownView {
     ) {
         let size = get_vertical_borders_size(tilemap.get_size());
         let borders = tilemap.get_vertical_borders();
+        let thickness = styles.get_wall_thickness();
+        let wall_size = Size2d::new(thickness, self.tile_size.height());
 
         let mut y = 0;
         let mut index = 0;
@@ -143,11 +146,10 @@ impl TopDownView {
                     Border::Empty => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
-                        let thickness = style.get_thickness();
                         renderer.render_rectangle(
                             (x - thickness as i32 / 2) as u32,
                             y,
-                            Size2d::new(thickness, self.tile_size.height()),
+                            wall_size,
                             *style.get_aab_style().get_top_color(),
                         )
                     }

@@ -23,6 +23,9 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
+        let thickness = styles.get_wall_thickness();
+        let delta_thickness = Self::calculate_delta(thickness);
+        let delta_half = Self::calculate_delta(thickness / 2);
         let mut start = self.get_start(tiles);
         let mut index = 0;
 
@@ -55,15 +58,13 @@ impl View for IsometricView {
                     Border::Empty => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
-                        let thickness = style.get_thickness();
-                        let delta_half = Self::calculate_delta(thickness / 2);
                         let back = self.get_reverse_left_box(point, delta_half);
 
                         self.render_box(
                             renderer,
                             back,
                             self.delta,
-                            Self::calculate_delta(thickness),
+                            delta_thickness,
                             style.get_aab_style(),
                         );
                     }
@@ -73,14 +74,12 @@ impl View for IsometricView {
                     Border::Empty => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
-                        let thickness = style.get_thickness();
-                        let delta_half = Self::calculate_delta(thickness / 2);
                         let left = self.get_reverse_right_box(point, delta_half);
 
                         self.render_box(
                             renderer,
                             left,
-                            Self::calculate_delta(thickness),
+                            delta_thickness,
                             self.delta,
                             style.get_aab_style(),
                         );

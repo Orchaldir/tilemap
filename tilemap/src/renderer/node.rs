@@ -19,7 +19,7 @@ pub enum Node<'a> {
 }
 
 impl<'a> Node<'a> {
-    pub fn calculate_half(&self) -> i32 {
+    pub fn calculate_half(&self) -> u32 {
         match self {
             Node::NoNode => 0,
             Node::OuterNode(style) => style.get_half(),

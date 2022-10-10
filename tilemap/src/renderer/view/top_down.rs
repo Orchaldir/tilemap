@@ -2,6 +2,8 @@ use crate::math::color::Color;
 use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
+use crate::renderer::edge::calculate_horizontal_edge;
+use crate::renderer::node::{calculate_node_styles, Node};
 use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
 use crate::tilemap::border::{get_horizontal_borders_size, get_vertical_borders_size, Border};
@@ -20,7 +22,11 @@ impl View for TopDownView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         self.render_tiles(tilemap, renderer, styles);
-        self.render_horizontal_borders(tilemap, renderer, styles);
+
+        let nodes =
+            calculate_node_styles(styles.get_node_styles(), styles.get_wall_styles(), tilemap);
+
+        self.render_horizontal_borders(tilemap, &nodes, renderer, styles);
         self.render_vertical_borders(tilemap, renderer, styles);
     }
 
@@ -88,6 +94,7 @@ impl TopDownView {
     fn render_horizontal_borders(
         &self,
         tilemap: &Tilemap2d,
+        nodes: &[Node],
         renderer: &mut dyn Renderer,
         styles: &StyleMgr,
     ) {
@@ -97,7 +104,7 @@ impl TopDownView {
         let mut y = 0i32;
         let mut index = 0;
 
-        for _y in 0..size.height() {
+        for row in 0..size.height() {
             let mut x = 0;
 
             for _x in 0..size.width() {
@@ -106,11 +113,13 @@ impl TopDownView {
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
+                        let (start, length) =
+                            calculate_horizontal_edge(nodes, self.tile_size.width(), index, row);
 
                         renderer.render_rectangle(
-                            x,
+                            x + start,
                             (y - thickness as i32 / 2) as u32,
-                            Size2d::new(self.tile_size.width(), thickness),
+                            Size2d::new(length, thickness),
                             *style.get_aab_style().get_top_color(),
                         )
                     }

@@ -82,12 +82,20 @@ impl StyleMgr {
         self.nodes.get(id)
     }
 
+    pub fn get_node_styles(&self) -> &ResourceManager<NodeStyle> {
+        &self.nodes
+    }
+
     pub fn get_solid_style(&self, id: SolidId) -> &SolidStyle {
         self.solids.get(id)
     }
 
     pub fn get_wall_style(&self, id: WallId) -> &WallStyle {
         self.walls.get(id)
+    }
+
+    pub fn get_wall_styles(&self) -> &ResourceManager<WallStyle> {
+        &self.walls
     }
 
     pub fn get_grid_color(&self) -> &Color {

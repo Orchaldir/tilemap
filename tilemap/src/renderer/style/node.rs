@@ -8,7 +8,7 @@ pub struct NodeStyle {
     name: String,
     style: BoxStyle,
     size: u32,
-    half: i32,
+    half: u32,
 }
 
 impl NodeStyle {
@@ -17,7 +17,7 @@ impl NodeStyle {
             name: name.into(),
             style,
             size,
-            half: (size / 2) as i32,
+            half: size / 2,
         }
     }
 
@@ -29,7 +29,7 @@ impl NodeStyle {
         self.size
     }
 
-    pub fn get_half(&self) -> i32 {
+    pub fn get_half(&self) -> u32 {
         self.half
     }
 }

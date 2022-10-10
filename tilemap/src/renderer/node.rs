@@ -8,19 +8,39 @@ use crate::utils::resource::ResourceManager;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
-/// Calculates the [`node styles`](crate::renderer::style::node::NodeStyle) at each node.
+/// Nodes are the 4 corners of each [`tile`](crate::tilemap::tile::Tile)
+/// and the start & end point of each [`border`](crate::tilemap::border::Border).
+/// How a node is rendered is indirectly determined by the 4 borders surrounding each node
+/// and their [`wall styles`](crate::renderer::style::wall::WallStyle).
+#[derive(Debug, PartialEq)]
+pub enum Node<'a> {
+    NoNode,
+    OuterNode(&'a NodeStyle),
+}
+
+impl<'a> Node<'a> {
+    pub fn calculate_half(&self) -> i32 {
+        match self {
+            Node::NoNode => 0,
+            Node::OuterNode(style) => style.get_half(),
+        }
+    }
+}
+
+/// Calculates the [`node`](Node) at each node.
 pub fn calculate_node_styles<'a>(
     node_styles: &'a ResourceManager<NodeStyle>,
     wall_styles: &'a ResourceManager<WallStyle>,
     tilemap: &'a Tilemap2d,
-) -> Vec<Option<&'a NodeStyle>> {
+) -> Vec<Node<'a>> {
     calculate_dominant_wall_styles(tilemap)
         .iter()
-        .map(|o| {
-            o.map(|wall_id| {
-                let node_id = wall_styles.get(wall_id).get_node_style();
-                node_styles.get(node_id)
-            })
+        .map(|o| match o {
+            None => Node::NoNode,
+            Some(wall_id) => {
+                let node_id = wall_styles.get(*wall_id).get_node_style();
+                Node::OuterNode(node_styles.get(node_id))
+            }
         })
         .collect()
 }

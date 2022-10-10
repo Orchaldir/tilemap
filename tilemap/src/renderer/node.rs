@@ -1,12 +1,32 @@
 use crate::math::side::Side;
+use crate::renderer::style::node::NodeStyle;
+use crate::renderer::style::wall::WallStyle;
 use crate::tilemap::border::WallId;
 use crate::tilemap::node::get_nodes_size;
 use crate::tilemap::tilemap2d::Tilemap2d;
+use crate::utils::resource::ResourceManager;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
+/// Calculates the [`node styles`](crate::renderer::style::node::NodeStyle) at each node.
+pub fn calculate_node_styles<'a>(
+    node_styles: &'a ResourceManager<NodeStyle>,
+    wall_styles: &'a ResourceManager<WallStyle>,
+    tilemap: &'a Tilemap2d,
+) -> Vec<Option<&'a NodeStyle>> {
+    calculate_dominant_wall_styles(tilemap)
+        .iter()
+        .map(|o| {
+            o.map(|wall_id| {
+                let node_id = wall_styles.get(wall_id).get_node_style();
+                node_styles.get(node_id)
+            })
+        })
+        .collect()
+}
+
 /// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at each node.
-pub fn calculate_dominant_wall_styles(tilemap: &Tilemap2d) -> Vec<Option<WallId>> {
+fn calculate_dominant_wall_styles(tilemap: &Tilemap2d) -> Vec<Option<WallId>> {
     let size = get_nodes_size(tilemap.get_size());
     let mut node_styles = Vec::with_capacity(size.count());
     let mut index = 0;

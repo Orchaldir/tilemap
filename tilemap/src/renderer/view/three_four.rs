@@ -63,7 +63,7 @@ impl ThreeFourView {
 
     fn render_tiles(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
-        let mut y = self.tile_height;
+        let mut y = self.tile_height as i32;
         let mut index = 0;
 
         for _y in 0..tiles.height() {
@@ -84,7 +84,7 @@ impl ThreeFourView {
                         self.render_aabb(
                             renderer,
                             x,
-                            y - self.tile_height,
+                            y - self.tile_height as i32,
                             self.tile_size.width(),
                             self.tile_size.height(),
                             styles.get_solid_style(id).get_aab_style(),
@@ -92,11 +92,11 @@ impl ThreeFourView {
                     }
                 }
 
-                x += self.tile_size.width();
+                x += self.tile_size.width() as i32;
                 index += 1;
             }
 
-            y += self.tile_size.height();
+            y += self.tile_size.height() as i32;
         }
     }
 
@@ -125,7 +125,7 @@ impl ThreeFourView {
                         self.render_aabb(
                             renderer,
                             x,
-                            y - thickness / 2,
+                            y - thickness as i32 / 2,
                             self.tile_size.width(),
                             thickness,
                             style.get_aab_style(),
@@ -133,11 +133,11 @@ impl ThreeFourView {
                     }
                 }
 
-                x += self.tile_size.width();
+                x += self.tile_size.width() as i32;
                 index += 1;
             }
 
-            y += self.tile_size.height();
+            y += self.tile_size.height() as i32;
         }
     }
 
@@ -165,7 +165,7 @@ impl ThreeFourView {
 
                         self.render_aabb(
                             renderer,
-                            x - thickness / 2,
+                            x - thickness as i32 / 2,
                             y,
                             thickness,
                             self.tile_size.height(),
@@ -174,19 +174,19 @@ impl ThreeFourView {
                     }
                 }
 
-                x += self.tile_size.width();
+                x += self.tile_size.width() as i32;
                 index += 1;
             }
 
-            y += self.tile_size.height();
+            y += self.tile_size.height() as i32;
         }
     }
 
     fn render_aabb(
         &self,
         renderer: &mut dyn Renderer,
-        x: u32,
-        y: u32,
+        x: i32,
+        y: i32,
         size_x: u32,
         size_y: u32,
         style: &BoxStyle,
@@ -199,13 +199,13 @@ impl ThreeFourView {
 
         renderer.render_rectangle(
             x,
-            y + size_y,
+            y + size_y as i32,
             Size2d::new(size_x, self.tile_height),
             *style.get_front_color(),
         );
     }
 
-    fn render_tile(&self, renderer: &mut dyn Renderer, x: u32, y: u32, color: Color) {
+    fn render_tile(&self, renderer: &mut dyn Renderer, x: i32, y: i32, color: Color) {
         renderer.render_rectangle(x, y, self.tile_size, color)
     }
 }

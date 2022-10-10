@@ -21,7 +21,7 @@ impl NodeStyle {
         }
     }
 
-    pub fn get_style_style(&self) -> &BoxStyle {
+    pub fn get_style(&self) -> &BoxStyle {
         &self.style
     }
 

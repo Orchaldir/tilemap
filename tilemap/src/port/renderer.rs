@@ -4,7 +4,7 @@ use crate::math::size2d::Size2d;
 
 pub trait Renderer {
     /// Renders an axis aligned rectangle.
-    fn render_rectangle(&mut self, x: u32, y: u32, size: Size2d, color: Color);
+    fn render_rectangle(&mut self, x: i32, y: i32, size: Size2d, color: Color);
 
     /// Renders a transformed rectangle. The points are ordered counter-clockwise.
     fn render_transformed_rectangle(

@@ -7,13 +7,34 @@ use std::collections::HashMap;
 /// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at the node.
 pub fn calculate_dominant_wall_style(tilemap: &Tilemap2d, index: usize) -> Option<WallId> {
     let sides_per_style = calculate_sides_per_style(tilemap, index);
+    let is_intersection = sides_per_style.len() > 1;
     let top_styles = get_top_styles(sides_per_style);
 
     match top_styles.len() {
-        1 => Some(top_styles[0].0),
+        1 => handle_one_style(&top_styles[0], is_intersection),
         n if n > 1 => top_styles.iter().map(|s| s.0).min(),
         _ => None,
     }
+}
+
+fn handle_one_style(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> Option<WallId> {
+    if is_inner_node(top_style, is_intersection) {
+        return None;
+    }
+
+    Some(top_style.0)
+}
+
+fn is_inner_node(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> bool {
+    !is_intersection && top_style.1.len() == 2 && is_straight(top_style)
+}
+
+/// Does the wall style form a straight line at a node?
+fn is_straight(style: &(WallId, Vec<Side>)) -> bool {
+    let side0 = style.1[0];
+    let side1 = style.1[1];
+
+    side0.is_straight(side1)
 }
 
 /// Calculates the [`wall styles`](crate::renderer::style::wall::WallStyle) with the highest count.
@@ -87,6 +108,19 @@ mod tests {
         assert_eq!(calculate_dominant_wall_style(&tilemap, 6), None);
         assert_eq!(calculate_dominant_wall_style(&tilemap, 7), Some(3));
         assert_eq!(calculate_dominant_wall_style(&tilemap, 8), None);
+    }
+
+    #[test]
+    fn test_line_with_same_wall_style() {
+        let size = Size2d::new(2, 2);
+        let mut tilemap = Tilemap2d::default(size, Empty).unwrap();
+
+        tilemap.set_border(2, Back, Wall(2));
+        tilemap.set_border(3, Back, Wall(2));
+
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 3), Some(2));
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 4), None);
+        assert_eq!(calculate_dominant_wall_style(&tilemap, 5), Some(2));
     }
 
     #[test]

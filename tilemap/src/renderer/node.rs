@@ -1,11 +1,28 @@
 use crate::math::side::Side;
 use crate::tilemap::border::WallId;
+use crate::tilemap::node::get_nodes_size;
 use crate::tilemap::tilemap2d::Tilemap2d;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
+/// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at each node.
+pub fn calculate_dominant_wall_styles(tilemap: &Tilemap2d) -> Vec<Option<WallId>> {
+    let size = get_nodes_size(tilemap.get_size());
+    let mut node_styles = Vec::with_capacity(size.count());
+    let mut index = 0;
+
+    for _y in 0..size.height() {
+        for _x in 0..size.width() {
+            node_styles.push(calculate_dominant_wall_style(tilemap, index));
+            index += 1;
+        }
+    }
+
+    node_styles
+}
+
 /// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at the node.
-pub fn calculate_dominant_wall_style(tilemap: &Tilemap2d, index: usize) -> Option<WallId> {
+fn calculate_dominant_wall_style(tilemap: &Tilemap2d, index: usize) -> Option<WallId> {
     let sides_per_style = calculate_sides_per_style(tilemap, index);
     let is_intersection = sides_per_style.len() > 1;
     let top_styles = get_top_styles(sides_per_style);
@@ -99,15 +116,15 @@ mod tests {
         tilemap.set_border(3, Back, Wall(2));
         tilemap.set_border(3, Left, Wall(3));
 
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 0), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 1), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 2), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 3), Some(2));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 4), Some(2));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 5), Some(2));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 6), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 7), Some(3));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 8), None);
+        #[rustfmt::skip]
+        assert_eq!(
+            calculate_dominant_wall_styles(&tilemap),
+            vec![
+                None, None, None,
+                Some(2), Some(2), Some(2),
+                None, Some(3), None
+            ]
+        );
     }
 
     #[test]
@@ -133,15 +150,15 @@ mod tests {
         tilemap.set_border(3, Back, Wall(11));
         tilemap.set_border(3, Left, Wall(10));
 
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 0), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 1), Some(13));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 2), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 3), Some(12));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 4), Some(10));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 5), Some(11));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 6), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 7), Some(10));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 8), None);
+        #[rustfmt::skip]
+        assert_eq!(
+            calculate_dominant_wall_styles(&tilemap),
+            vec![
+                None, Some(13), None,
+                Some(12), Some(10), Some(11),
+                None, Some(10), None
+            ]
+        );
     }
 
     #[test]

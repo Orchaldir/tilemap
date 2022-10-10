@@ -11,7 +11,7 @@ pub struct NodeStyle {
 }
 
 impl NodeStyle {
-    pub fn new<S: Into<String>>(name: S, style: BoxStyle,size: u32,) -> Self {
+    pub fn new<S: Into<String>>(name: S, style: BoxStyle, size: u32) -> Self {
         NodeStyle {
             name: name.into(),
             style,

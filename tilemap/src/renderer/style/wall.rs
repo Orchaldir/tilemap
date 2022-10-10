@@ -9,14 +9,16 @@ pub struct WallStyle {
     name: String,
     aab: BoxStyle,
     node: NodeId,
+    thickness: u32,
 }
 
 impl WallStyle {
-    pub fn new<S: Into<String>>(name: S, aab: BoxStyle, node: NodeId) -> Self {
+    pub fn new<S: Into<String>>(name: S, aab: BoxStyle, node: NodeId, thickness: u32) -> Self {
         WallStyle {
             name: name.into(),
             aab,
             node,
+            thickness,
         }
     }
 
@@ -27,11 +29,15 @@ impl WallStyle {
     pub fn get_node_style(&self) -> NodeId {
         self.node
     }
+
+    pub fn get_thickness(&self) -> u32 {
+        self.thickness
+    }
 }
 
 impl Default for WallStyle {
     fn default() -> Self {
-        Self::new("default", BoxStyle::shaded(PINK), 0)
+        Self::new("default", BoxStyle::shaded(PINK), 0, 1)
     }
 }
 

@@ -108,7 +108,6 @@ impl ThreeFourView {
     ) {
         let size = get_horizontal_borders_size(tilemap.get_size());
         let borders = tilemap.get_horizontal_borders();
-        let thickness = styles.get_wall_thickness();
 
         let mut y = 0;
         let mut index = 0;
@@ -121,6 +120,7 @@ impl ThreeFourView {
                     Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
 
                         self.render_aabb(
                             renderer,
@@ -149,7 +149,6 @@ impl ThreeFourView {
     ) {
         let size = get_vertical_borders_size(tilemap.get_size());
         let borders = tilemap.get_vertical_borders();
-        let thickness = styles.get_wall_thickness();
 
         let mut y = 0;
         let mut index = 0;
@@ -162,6 +161,7 @@ impl ThreeFourView {
                     Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
 
                         self.render_aabb(
                             renderer,

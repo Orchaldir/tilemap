@@ -20,7 +20,6 @@ pub struct StyleMgr {
     nodes: ResourceManager<NodeStyle>,
     solids: ResourceManager<SolidStyle>,
     walls: ResourceManager<WallStyle>,
-    wall_thickness: u32,
     grid: Color,
 }
 
@@ -31,7 +30,6 @@ impl StyleMgr {
         nodes: ResourceManager<NodeStyle>,
         solids: ResourceManager<SolidStyle>,
         walls: ResourceManager<WallStyle>,
-        wall_thickness: u32,
         grid: Color,
     ) -> Self {
         StyleMgr {
@@ -39,7 +37,6 @@ impl StyleMgr {
             nodes,
             solids,
             walls,
-            wall_thickness,
             grid,
         }
     }
@@ -49,7 +46,6 @@ impl StyleMgr {
         nodes: Vec<NodeStyle>,
         solids: Vec<SolidStyle>,
         walls: Vec<WallStyle>,
-        wall_thickness: u32,
         grid: Color,
     ) -> Self {
         Self::new(
@@ -57,7 +53,6 @@ impl StyleMgr {
             ResourceManager::with_default(nodes),
             ResourceManager::with_default(solids),
             ResourceManager::with_default(walls),
-            wall_thickness,
             grid,
         )
     }
@@ -68,7 +63,6 @@ impl StyleMgr {
         node: NodeStyle,
         solid: SolidStyle,
         wall: WallStyle,
-        wall_thickness: u32,
         grid: Color,
     ) -> Self {
         Self::new(
@@ -76,7 +70,6 @@ impl StyleMgr {
             ResourceManager::new(Vec::new(), node),
             ResourceManager::new(Vec::new(), solid),
             ResourceManager::new(Vec::new(), wall),
-            wall_thickness,
             grid,
         )
     }
@@ -95,10 +88,6 @@ impl StyleMgr {
 
     pub fn get_wall_style(&self, id: WallId) -> &WallStyle {
         self.walls.get(id)
-    }
-
-    pub fn get_wall_thickness(&self) -> u32 {
-        self.wall_thickness
     }
 
     pub fn get_grid_color(&self) -> &Color {

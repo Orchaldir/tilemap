@@ -6,19 +6,19 @@ use crate::utils::resource::Resource;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NodeStyle {
     name: String,
-    aab: BoxStyle,
+    style: BoxStyle,
 }
 
 impl NodeStyle {
-    pub fn new<S: Into<String>>(name: S, aab: BoxStyle) -> Self {
+    pub fn new<S: Into<String>>(name: S, style: BoxStyle) -> Self {
         NodeStyle {
             name: name.into(),
-            aab,
+            style,
         }
     }
 
-    pub fn get_aab_style(&self) -> &BoxStyle {
-        &self.aab
+    pub fn get_style_style(&self) -> &BoxStyle {
+        &self.style
     }
 }
 

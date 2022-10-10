@@ -7,24 +7,30 @@ use crate::utils::resource::Resource;
 pub struct NodeStyle {
     name: String,
     style: BoxStyle,
+    size: u32,
 }
 
 impl NodeStyle {
-    pub fn new<S: Into<String>>(name: S, style: BoxStyle) -> Self {
+    pub fn new<S: Into<String>>(name: S, style: BoxStyle,size: u32,) -> Self {
         NodeStyle {
             name: name.into(),
             style,
+            size,
         }
     }
 
     pub fn get_style_style(&self) -> &BoxStyle {
         &self.style
     }
+
+    pub fn get_size(&self) -> u32 {
+        self.size
+    }
 }
 
 impl Default for NodeStyle {
     fn default() -> Self {
-        Self::new("default", BoxStyle::shaded(PINK))
+        Self::new("default", BoxStyle::shaded(PINK), 1)
     }
 }
 

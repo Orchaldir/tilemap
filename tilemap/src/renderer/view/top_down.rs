@@ -189,6 +189,7 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match nodes[index] {
                     Node::NoNode => {}
+                    Node::InnerNode => {}
                     Node::OuterNode(style) => {
                         let half = style.get_half() as i32;
 

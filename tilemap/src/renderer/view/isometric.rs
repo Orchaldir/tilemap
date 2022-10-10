@@ -53,6 +53,7 @@ impl View for IsometricView {
                             self.delta,
                             self.delta,
                             style.get_aab_style(),
+                            (true, true),
                         )
                     }
                 }
@@ -61,13 +62,21 @@ impl View for IsometricView {
 
                 match nodes[node_index] {
                     Node::NoNode => {}
+                    Node::InnerNode => {}
                     Node::OuterNode(style) => {
                         let delta_half = Self::calculate_delta(style.get_half());
                         let delta_size = Self::calculate_delta(style.get_size());
                         let back = self.get_reverse_left_box(point, delta_half);
                         let back = self.get_reverse_right_box(back, delta_half);
 
-                        self.render_box(renderer, back, delta_size, delta_size, style.get_style());
+                        self.render_box(
+                            renderer,
+                            back,
+                            delta_size,
+                            delta_size,
+                            style.get_style(),
+                            (true, true),
+                        );
                     }
                 }
 
@@ -89,6 +98,7 @@ impl View for IsometricView {
                             Self::calculate_delta(length),
                             Self::calculate_delta(thickness),
                             style.get_aab_style(),
+                            (true, false),
                         );
                     }
                 }
@@ -116,6 +126,7 @@ impl View for IsometricView {
                             Self::calculate_delta(thickness),
                             Self::calculate_delta(length),
                             style.get_aab_style(),
+                            (false, true),
                         );
                     }
                 }
@@ -187,6 +198,7 @@ impl IsometricView {
         delta_row: Point2d,
         delta_column: Point2d,
         style: &BoxStyle,
+        filter: (bool, bool),
     ) {
         self.render_ceiling(
             renderer,
@@ -195,20 +207,26 @@ impl IsometricView {
             delta_column,
             *style.get_top_color(),
         );
-        self.render_front(
-            renderer,
-            back,
-            delta_row,
-            delta_column,
-            *style.get_front_color(),
-        );
-        self.render_side(
-            renderer,
-            back,
-            delta_row,
-            delta_column,
-            *style.get_side_color(),
-        );
+
+        if filter.0 {
+            self.render_front(
+                renderer,
+                back,
+                delta_row,
+                delta_column,
+                *style.get_front_color(),
+            );
+        }
+
+        if filter.1 {
+            self.render_side(
+                renderer,
+                back,
+                delta_row,
+                delta_column,
+                *style.get_side_color(),
+            );
+        }
     }
 
     /// Render the top of an axis aligned box.

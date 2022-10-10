@@ -15,6 +15,7 @@ use std::collections::HashMap;
 #[derive(Debug, PartialEq)]
 pub enum Node<'a> {
     NoNode,
+    InnerNode,
     OuterNode(&'a NodeStyle),
 }
 
@@ -22,6 +23,7 @@ impl<'a> Node<'a> {
     pub fn calculate_half(&self) -> u32 {
         match self {
             Node::NoNode => 0,
+            Node::InnerNode => 0,
             Node::OuterNode(style) => style.get_half(),
         }
     }
@@ -36,8 +38,9 @@ pub fn calculate_node_styles<'a>(
     calculate_dominant_wall_styles(tilemap)
         .iter()
         .map(|o| match o {
-            None => Node::NoNode,
-            Some(wall_id) => {
+            IdNode::No => Node::NoNode,
+            IdNode::Inner => Node::InnerNode,
+            IdNode::Outer(wall_id) => {
                 let node_id = wall_styles.get(*wall_id).get_node_style();
                 Node::OuterNode(node_styles.get(node_id))
             }
@@ -45,8 +48,15 @@ pub fn calculate_node_styles<'a>(
         .collect()
 }
 
+#[derive(Debug, PartialEq)]
+enum IdNode {
+    No,
+    Inner,
+    Outer(WallId),
+}
+
 /// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at each node.
-fn calculate_dominant_wall_styles(tilemap: &Tilemap2d) -> Vec<Option<WallId>> {
+fn calculate_dominant_wall_styles(tilemap: &Tilemap2d) -> Vec<IdNode> {
     let size = get_nodes_size(tilemap.get_size());
     let mut node_styles = Vec::with_capacity(size.count());
     let mut index = 0;
@@ -62,24 +72,24 @@ fn calculate_dominant_wall_styles(tilemap: &Tilemap2d) -> Vec<Option<WallId>> {
 }
 
 /// Calculates the dominant [`wall style`](crate::renderer::style::wall::WallStyle) at the node.
-fn calculate_dominant_wall_style(tilemap: &Tilemap2d, index: usize) -> Option<WallId> {
+fn calculate_dominant_wall_style(tilemap: &Tilemap2d, index: usize) -> IdNode {
     let sides_per_style = calculate_sides_per_style(tilemap, index);
     let is_intersection = sides_per_style.len() > 1;
     let top_styles = get_top_styles(sides_per_style);
 
     match top_styles.len() {
         1 => handle_one_style(&top_styles[0], is_intersection),
-        n if n > 1 => top_styles.iter().map(|s| s.0).min(),
-        _ => None,
+        n if n > 1 => IdNode::Outer(top_styles.iter().map(|s| s.0).min().unwrap()),
+        _ => IdNode::No,
     }
 }
 
-fn handle_one_style(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> Option<WallId> {
+fn handle_one_style(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> IdNode {
     if is_inner_node(top_style, is_intersection) {
-        return None;
+        return IdNode::Inner;
     }
 
-    Some(top_style.0)
+    IdNode::Outer(top_style.0)
 }
 
 fn is_inner_node(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> bool {
@@ -143,6 +153,7 @@ mod tests {
     use super::*;
     use crate::math::side::Side::*;
     use crate::math::size2d::Size2d;
+    use crate::renderer::node::IdNode::{Inner, No, Outer};
     use crate::tilemap::border::Border::Wall;
     use crate::tilemap::tile::Tile::Empty;
     use map_macro::map;
@@ -160,9 +171,9 @@ mod tests {
         assert_eq!(
             calculate_dominant_wall_styles(&tilemap),
             vec![
-                None, None, None,
-                Some(2), Some(2), Some(2),
-                None, Some(3), None
+                No, No, No,
+                Outer(2), Outer(2), Outer(2),
+                No, Outer(3), No
             ]
         );
     }
@@ -179,9 +190,9 @@ mod tests {
         assert_eq!(
             calculate_dominant_wall_styles(&tilemap),
             vec![
-                None, None, None,
-                Some(2), None, Some(2),
-                None, None, None
+                No, No, No,
+                Outer(2), Inner, Outer(2),
+                No, No, No,
             ]
         );
     }
@@ -200,9 +211,9 @@ mod tests {
         assert_eq!(
             calculate_dominant_wall_styles(&tilemap),
             vec![
-                None, Some(13), None,
-                Some(12), Some(10), Some(11),
-                None, Some(10), None
+                No, Outer(13), No,
+                Outer(12), Outer(10), Outer(11),
+                No, Outer(10), No
             ]
         );
     }

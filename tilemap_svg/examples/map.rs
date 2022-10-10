@@ -1,7 +1,7 @@
 extern crate tilemap;
 extern crate tilemap_svg;
 
-use tilemap::math::color::{BLACK, BLUE, GREEN, ORANGE, RED, WHITE, YELLOW};
+use tilemap::math::color::{BLACK, BLUE, GREEN, ORANGE, RED, YELLOW};
 use tilemap::math::side::Side;
 use tilemap::math::size2d::Size2d;
 use tilemap::renderer::style::aab::BoxStyle;
@@ -22,9 +22,9 @@ use tilemap_svg::renderer::SvgBuilder;
 fn main() {
     let tilemap = create_wall_example();
 
-    let tile_side = 100;
+    let tile_side = 1000;
     let tile_size = Size2d::square(tile_side);
-    let height = 300;
+    let height = 3000;
 
     let isometric = IsometricView::new(tile_side, height);
     let three_four = ThreeFourView::new(tile_size, height);
@@ -80,8 +80,8 @@ fn render(viewer: &dyn View, tilemap: &Tilemap2d, path: &str) {
     let floor_style = FloorStyle::new("floor", GREEN);
     let solid_style0 = SolidStyle::new("solid0", BoxStyle::shaded(ORANGE));
     let solid_style1 = SolidStyle::new("solid1", BoxStyle::shaded(BLUE));
-    let node_style = NodeStyle::new("node", BoxStyle::shaded(RED), 14);
-    let wall_style = WallStyle::new("wall", BoxStyle::shaded(YELLOW), 0, 10);
+    let node_style = NodeStyle::new("node", BoxStyle::shaded(RED), 200);
+    let wall_style = WallStyle::new("wall", BoxStyle::shaded(YELLOW), 0, 100);
     let style = StyleMgr::without_manager(
         vec![floor_style],
         vec![node_style],

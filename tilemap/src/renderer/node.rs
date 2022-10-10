@@ -135,9 +135,15 @@ mod tests {
         tilemap.set_border(2, Back, Wall(2));
         tilemap.set_border(3, Back, Wall(2));
 
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 3), Some(2));
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 4), None);
-        assert_eq!(calculate_dominant_wall_style(&tilemap, 5), Some(2));
+        #[rustfmt::skip]
+        assert_eq!(
+            calculate_dominant_wall_styles(&tilemap),
+            vec![
+                None, None, None,
+                Some(2), None, Some(2),
+                None, None, None
+            ]
+        );
     }
 
     #[test]

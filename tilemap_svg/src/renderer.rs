@@ -56,7 +56,7 @@ impl SvgBuilder {
 }
 
 impl Renderer for SvgBuilder {
-    fn render_rectangle(&mut self, x: u32, y: u32, size: Size2d, color: Color) {
+    fn render_rectangle(&mut self, x: i32, y: i32, size: Size2d, color: Color) {
         self.lines.push(format!(
             "  <rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{}\"/>",
             x,

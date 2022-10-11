@@ -1,3 +1,4 @@
+use crate::math::point2d::Point2d;
 use std::ops::{Add, Mul};
 
 #[svgbobdoc::transform]
@@ -103,6 +104,18 @@ impl Size2d {
     /// ```
     pub fn to_y(&self, index: usize) -> i32 {
         index as i32 / self.width as i32
+    }
+
+    /// Converts an index to the equivalent [`Point`].
+    ///
+    /// ```
+    ///# use tilemap::math::point2d::Point2d;
+    ///# use tilemap::math::size2d::Size2d;
+    /// let size = Size2d::new(2, 3);
+    /// assert_eq!(size.to_point(5), Point2d::new(1,2));
+    /// ```
+    pub fn to_point(&self, index: usize) -> Point2d {
+        Point2d::new(self.to_x(index), self.to_y(index))
     }
 
     /// Converts a [`Point`] to the equivalent index, but returns a wrong result if it is outside.

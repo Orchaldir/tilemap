@@ -35,6 +35,16 @@ impl Side {
         static SIDES: [Side; 4] = [Back, Left, Front, Right];
         SIDES.iter()
     }
+
+    /// Do the 2 sides form a straight line at a node?
+    pub fn is_straight(&self, other: Side) -> bool {
+        match self {
+            Back => other == Front,
+            Left => other == Right,
+            Front => other == Back,
+            Right => other == Left,
+        }
+    }
 }
 
 impl fmt::Display for Side {
@@ -56,5 +66,32 @@ mod tests {
         assert_eq!(iter.next(), Some(&Front));
         assert_eq!(iter.next(), Some(&Right));
         assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn test_is_straight() {
+        assert!(Back.is_straight(Front));
+        assert!(Left.is_straight(Right));
+        assert!(Front.is_straight(Back));
+        assert!(Right.is_straight(Left))
+    }
+
+    #[test]
+    fn test_is_not_straight() {
+        assert!(!Back.is_straight(Back));
+        assert!(!Back.is_straight(Left));
+        assert!(!Back.is_straight(Right));
+
+        assert!(!Left.is_straight(Back));
+        assert!(!Left.is_straight(Left));
+        assert!(!Left.is_straight(Front));
+
+        assert!(!Front.is_straight(Left));
+        assert!(!Front.is_straight(Front));
+        assert!(!Front.is_straight(Right));
+
+        assert!(!Right.is_straight(Back));
+        assert!(!Right.is_straight(Front));
+        assert!(!Right.is_straight(Right));
     }
 }

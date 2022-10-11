@@ -3,16 +3,19 @@ use crate::math::point2d::Point2d;
 use crate::math::side::Side;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
+use crate::renderer::border::{calculate_horizontal_border, calculate_vertical_border};
+use crate::renderer::node::{calculate_node_styles, Node};
 use crate::renderer::style::aab::BoxStyle;
 use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
-use crate::tilemap::border::Border;
+use crate::tilemap::border::{get_vertical_borders_size, Border};
 use crate::tilemap::tile::Tile;
 use crate::tilemap::tilemap2d::Tilemap2d;
 
 /// Renders a [`Tilemap2d`](crate::tilemap::tilemap2d::Tilemap2d) with an [`isometric view`](https://en.wikipedia.org/wiki/Isometric_projection).
 pub struct IsometricView {
     delta: Point2d,
+    tile_size: u32,
     tile_height: i32,
 }
 
@@ -23,10 +26,13 @@ impl View for IsometricView {
 
     fn render(&self, tilemap: &Tilemap2d, renderer: &mut dyn Renderer, styles: &StyleMgr) {
         let tiles = tilemap.get_size();
+        let vertical_size = get_vertical_borders_size(tilemap.get_size());
+        let nodes =
+            calculate_node_styles(styles.get_node_styles(), styles.get_wall_styles(), tilemap);
         let mut start = self.get_start(tiles);
         let mut index = 0;
 
-        for _y in 0..tiles.height() {
+        for row in 0..tiles.height() {
             let mut point = start;
 
             for _x in 0..tiles.width() {
@@ -47,42 +53,80 @@ impl View for IsometricView {
                             self.delta,
                             self.delta,
                             style.get_aab_style(),
+                            (true, true),
                         )
                     }
                 }
 
-                match tilemap.get_border(index, Side::Back) {
-                    Border::Empty => {}
-                    Border::Wall(id) => {
-                        let style = styles.get_wall_style(id);
-                        let thickness = style.get_thickness();
-                        let delta_half = Self::calculate_delta(thickness / 2);
+                let node_index = index + row as usize;
+
+                match nodes[node_index] {
+                    Node::NoNode => {}
+                    Node::InnerNode => {}
+                    Node::OuterNode(style) => {
+                        let delta_half = Self::calculate_delta(style.get_half());
+                        let delta_size = Self::calculate_delta(style.get_size());
                         let back = self.get_reverse_left_box(point, delta_half);
+                        let back = self.get_reverse_right_box(back, delta_half);
 
                         self.render_box(
                             renderer,
                             back,
-                            self.delta,
+                            delta_size,
+                            delta_size,
+                            style.get_style(),
+                            (true, true),
+                        );
+                    }
+                }
+
+                match tilemap.get_border(index, Side::Back) {
+                    Border::NoBorder => {}
+                    Border::Wall(id) => {
+                        let style = styles.get_wall_style(id);
+                        let thickness = style.get_thickness();
+                        let (start, length) =
+                            calculate_horizontal_border(&nodes, self.tile_size, index, row);
+                        let delta_half = Self::calculate_delta(thickness / 2);
+                        let delta_start = Self::calculate_delta(start as u32);
+                        let back = self.get_reverse_left_box(point, delta_half);
+                        let back = self.get_right_box(back, delta_start);
+
+                        self.render_box(
+                            renderer,
+                            back,
+                            Self::calculate_delta(length),
                             Self::calculate_delta(thickness),
                             style.get_aab_style(),
+                            (true, false),
                         );
                     }
                 }
 
                 match tilemap.get_border(index, Side::Left) {
-                    Border::Empty => {}
+                    Border::NoBorder => {}
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
+                        let border_index = index + row as usize;
+                        let (start, length) = calculate_vertical_border(
+                            &nodes,
+                            self.tile_size,
+                            vertical_size,
+                            border_index,
+                        );
                         let delta_half = Self::calculate_delta(thickness / 2);
+                        let delta_start = Self::calculate_delta(start as u32);
                         let left = self.get_reverse_right_box(point, delta_half);
+                        let left = self.get_left_box(left, delta_start);
 
                         self.render_box(
                             renderer,
                             left,
                             Self::calculate_delta(thickness),
-                            self.delta,
+                            Self::calculate_delta(length),
                             style.get_aab_style(),
+                            (false, true),
                         );
                     }
                 }
@@ -106,6 +150,7 @@ impl View for IsometricView {
 impl IsometricView {
     pub fn new(tile_size: u32, tile_height: u32) -> Self {
         IsometricView {
+            tile_size,
             delta: Self::calculate_delta(tile_size),
             tile_height: tile_height as i32,
         }
@@ -153,6 +198,7 @@ impl IsometricView {
         delta_row: Point2d,
         delta_column: Point2d,
         style: &BoxStyle,
+        filter: (bool, bool),
     ) {
         self.render_ceiling(
             renderer,
@@ -161,20 +207,26 @@ impl IsometricView {
             delta_column,
             *style.get_top_color(),
         );
-        self.render_front(
-            renderer,
-            back,
-            delta_row,
-            delta_column,
-            *style.get_front_color(),
-        );
-        self.render_side(
-            renderer,
-            back,
-            delta_row,
-            delta_column,
-            *style.get_side_color(),
-        );
+
+        if filter.0 {
+            self.render_front(
+                renderer,
+                back,
+                delta_row,
+                delta_column,
+                *style.get_front_color(),
+            );
+        }
+
+        if filter.1 {
+            self.render_side(
+                renderer,
+                back,
+                delta_row,
+                delta_column,
+                *style.get_side_color(),
+            );
+        }
     }
 
     /// Render the top of an axis aligned box.

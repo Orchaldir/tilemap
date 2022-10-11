@@ -2,7 +2,7 @@ use crate::math::color::Color;
 use crate::math::point2d::Point2d;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
-use crate::renderer::edge::{calculate_horizontal_edge, calculate_vertical_edge};
+use crate::renderer::border::{calculate_horizontal_border, calculate_vertical_border};
 use crate::renderer::node::{calculate_node_styles, Node};
 use crate::renderer::style::StyleMgr;
 use crate::renderer::view::View;
@@ -116,7 +116,7 @@ impl TopDownView {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
                         let (start, length) =
-                            calculate_horizontal_edge(nodes, self.tile_size.width(), index, row);
+                            calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
 
                         renderer.render_rectangle(
                             x + start,
@@ -158,7 +158,7 @@ impl TopDownView {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
                         let (start, length) =
-                            calculate_vertical_edge(nodes, self.tile_size.width(), size, index);
+                            calculate_vertical_border(nodes, self.tile_size.width(), size, index);
 
                         renderer.render_rectangle(
                             x - thickness as i32 / 2,

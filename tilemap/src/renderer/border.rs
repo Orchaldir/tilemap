@@ -5,7 +5,8 @@ use crate::tilemap::node::{
     get_start_of_vertical_border,
 };
 
-pub fn calculate_horizontal_edge(
+/// Calculates the the start offset & length of a horizontal [`border`](crate::tilemap::border::Border).
+pub fn calculate_horizontal_border(
     nodes: &[Node],
     tile_size: u32,
     border_index: usize,
@@ -13,10 +14,11 @@ pub fn calculate_horizontal_edge(
 ) -> (i32, u32) {
     let start_index = get_start_of_horizontal_border(border_index, y);
     let end_index = get_end_of_horizontal_border(border_index, y);
-    calculate_edge(nodes, tile_size, start_index, end_index)
+    calculate_border(nodes, tile_size, start_index, end_index)
 }
 
-pub fn calculate_vertical_edge(
+/// Calculates the the start offset & length of a vertical [`border`](crate::tilemap::border::Border).
+pub fn calculate_vertical_border(
     nodes: &[Node],
     tile_size: u32,
     size: Size2d,
@@ -24,10 +26,11 @@ pub fn calculate_vertical_edge(
 ) -> (i32, u32) {
     let start_index = get_start_of_vertical_border(border_index);
     let end_index = get_end_of_vertical_border(size, border_index);
-    calculate_edge(nodes, tile_size, start_index, end_index)
+    calculate_border(nodes, tile_size, start_index, end_index)
 }
 
-fn calculate_edge(
+/// Calculates the the start offset & length of a [`border`](crate::tilemap::border::Border).
+fn calculate_border(
     nodes: &[Node],
     tile_size: u32,
     start_index: usize,

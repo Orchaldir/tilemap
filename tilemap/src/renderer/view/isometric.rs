@@ -3,7 +3,7 @@ use crate::math::point2d::Point2d;
 use crate::math::side::Side;
 use crate::math::size2d::Size2d;
 use crate::port::renderer::Renderer;
-use crate::renderer::edge::{calculate_horizontal_edge, calculate_vertical_edge};
+use crate::renderer::border::{calculate_horizontal_border, calculate_vertical_border};
 use crate::renderer::node::{calculate_node_styles, Node};
 use crate::renderer::style::aab::BoxStyle;
 use crate::renderer::style::StyleMgr;
@@ -86,7 +86,7 @@ impl View for IsometricView {
                         let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let (start, length) =
-                            calculate_horizontal_edge(&nodes, self.tile_size, index, row);
+                            calculate_horizontal_border(&nodes, self.tile_size, index, row);
                         let delta_half = Self::calculate_delta(thickness / 2);
                         let delta_start = Self::calculate_delta(start as u32);
                         let back = self.get_reverse_left_box(point, delta_half);
@@ -109,7 +109,7 @@ impl View for IsometricView {
                         let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let border_index = index + row as usize;
-                        let (start, length) = calculate_vertical_edge(
+                        let (start, length) = calculate_vertical_border(
                             &nodes,
                             self.tile_size,
                             vertical_size,

@@ -14,8 +14,11 @@ use std::collections::HashMap;
 /// and their [`wall styles`](crate::renderer::style::wall::WallStyle).
 #[derive(Debug, PartialEq)]
 pub enum Node<'a> {
+    /// The node is not part of any wall.
     NoNode,
+    /// A node in the middle of a straight wall that is not rendered.
     InnerNode,
+    /// A corner, an end point of a wall or intersection of multiple walls.
     OuterNode(&'a NodeStyle),
 }
 
@@ -92,6 +95,7 @@ fn handle_one_style(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> I
     IdNode::Outer(top_style.0)
 }
 
+/// Is the node an inner or outer node? Assumes that it is part of a wall.
 fn is_inner_node(top_style: &(WallId, Vec<Side>), is_intersection: bool) -> bool {
     !is_intersection && top_style.1.len() == 2 && is_straight(top_style)
 }

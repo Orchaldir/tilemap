@@ -112,7 +112,7 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::NoBorder => {}
-                    Border::Wall(id) => {
+                    Border::Wall(id) | Border::Door(id, _) => {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
                         let (start, length) =
@@ -154,7 +154,7 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::NoBorder => {}
-                    Border::Wall(id) => {
+                    Border::Wall(id) | Border::Door(id, _) => {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
                         let (start, length) =

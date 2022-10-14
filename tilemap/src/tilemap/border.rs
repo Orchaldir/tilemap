@@ -1,5 +1,5 @@
 use crate::math::size2d::Size2d;
-use crate::tilemap::style::WallId;
+use crate::tilemap::style::{DoorId, WallId};
 
 /// The border between 2 [`tiles`](crate::tilemap::tile::Tile).
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -8,6 +8,8 @@ pub enum Border {
     NoBorder,
     /// A wall blocks the border between the 2 tiles.
     Wall(WallId),
+    /// A wall blocks the border between the 2 tiles.
+    Door(WallId, DoorId),
 }
 
 impl Border {
@@ -15,6 +17,7 @@ impl Border {
         match self {
             Border::NoBorder => None,
             Border::Wall(id) => Some(*id),
+            Border::Door(id, _) => Some(*id),
         }
     }
 }
@@ -55,10 +58,12 @@ mod tests {
     use Border::*;
 
     const WALL: Border = Wall(42);
+    const DOOR: Border = Door(101, 102);
 
     #[test]
     fn test_get_wall_style() {
         assert_eq!(NoBorder.get_wall_style(), None);
         assert_eq!(WALL.get_wall_style(), Some(42));
+        assert_eq!(DOOR.get_wall_style(), Some(101));
     }
 }

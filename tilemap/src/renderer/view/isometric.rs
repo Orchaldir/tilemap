@@ -82,7 +82,7 @@ impl View for IsometricView {
 
                 match tilemap.get_border(index, Side::Back) {
                     Border::NoBorder => {}
-                    Border::Wall(id) => {
+                    Border::Wall(id) | Border::Door(id, _) => {
                         let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let (start, length) =
@@ -105,7 +105,7 @@ impl View for IsometricView {
 
                 match tilemap.get_border(index, Side::Left) {
                     Border::NoBorder => {}
-                    Border::Wall(id) => {
+                    Border::Wall(id) | Border::Door(id, _) => {
                         let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let border_index = index + row as usize;

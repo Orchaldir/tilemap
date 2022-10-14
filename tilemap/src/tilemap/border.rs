@@ -1,6 +1,5 @@
 use crate::math::size2d::Size2d;
-
-pub type WallId = usize;
+use crate::tilemap::style::WallId;
 
 /// The border between 2 [`tiles`](crate::tilemap::tile::Tile).
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

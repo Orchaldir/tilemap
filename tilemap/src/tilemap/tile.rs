@@ -1,5 +1,4 @@
-pub type FloorId = usize;
-pub type SolidId = usize;
+use crate::tilemap::style::{FloorId, SolidId};
 
 /// A space in the [`tilemap`](crate::tilemap::tilemap2d::Tilemap2d).
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

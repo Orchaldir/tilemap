@@ -1,8 +1,8 @@
 use crate::math::side::Side;
 use crate::renderer::style::node::NodeStyle;
 use crate::renderer::style::wall::WallStyle;
-use crate::tilemap::border::WallId;
 use crate::tilemap::node::get_nodes_size;
+use crate::tilemap::style::WallId;
 use crate::tilemap::tilemap2d::Tilemap2d;
 use crate::utils::resource::ResourceManager;
 use std::collections::hash_map::Entry;

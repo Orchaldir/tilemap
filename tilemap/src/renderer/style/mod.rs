@@ -3,9 +3,7 @@ use crate::renderer::style::floor::FloorStyle;
 use crate::renderer::style::node::NodeStyle;
 use crate::renderer::style::solid::SolidStyle;
 use crate::renderer::style::wall::WallStyle;
-use crate::tilemap::border::WallId;
-use crate::tilemap::tile::{FloorId, SolidId};
-use crate::tilemap::NodeId;
+use crate::tilemap::style::{FloorId, NodeId, SolidId, WallId};
 use crate::utils::resource::ResourceManager;
 
 pub mod aab;

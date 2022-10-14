@@ -1,6 +1,6 @@
 use crate::math::color::PINK;
 use crate::renderer::style::aab::BoxStyle;
-use crate::tilemap::NodeId;
+use crate::tilemap::style::NodeId;
 use crate::utils::resource::Resource;
 
 /// Defines how to render a [`wall`](crate::tilemap::border::Border::Wall).

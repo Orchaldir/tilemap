@@ -52,6 +52,7 @@ impl View for ThreeFourView {
                             y,
                             self.tile_size.width(),
                             self.tile_size.height(),
+                            self.tile_height,
                             styles.get_solid_style(id).get_style(),
                         );
                     }
@@ -71,6 +72,7 @@ impl View for ThreeFourView {
                             y - half,
                             style.get_size(),
                             style.get_size(),
+                            self.tile_height,
                             style.get_style(),
                         );
                     }
@@ -88,6 +90,7 @@ impl View for ThreeFourView {
                             y,
                             index,
                             row,
+                            self.tile_height,
                             style.get_thickness(),
                             style.get_style(),
                         );
@@ -99,9 +102,10 @@ impl View for ThreeFourView {
                             renderer,
                             &nodes,
                             x,
-                            y,
+                            y + (self.tile_height - style.get_height()) as i32,
                             index,
                             row,
+                            style.get_height(),
                             style.get_thickness(),
                             style.get_style(),
                         );
@@ -120,6 +124,7 @@ impl View for ThreeFourView {
                             x,
                             y,
                             index,
+                            self.tile_height,
                             style.get_thickness(),
                             style.get_style(),
                         );
@@ -132,8 +137,9 @@ impl View for ThreeFourView {
                             &nodes,
                             vertical_size,
                             x,
-                            y,
+                            y + (self.tile_height - style.get_height()) as i32,
                             index,
+                            style.get_height(),
                             style.get_thickness(),
                             style.get_style(),
                         );
@@ -190,6 +196,7 @@ impl ThreeFourView {
         y: i32,
         size_x: u32,
         size_y: u32,
+        height: u32,
         style: &BoxStyle,
     ) {
         // render top
@@ -201,7 +208,7 @@ impl ThreeFourView {
         renderer.render_rectangle(
             x,
             y + size_y as i32,
-            Size2d::new(size_x, self.tile_height),
+            Size2d::new(size_x, height),
             *style.get_front_color(),
         );
     }
@@ -218,6 +225,7 @@ impl ThreeFourView {
         y: i32,
         index: usize,
         row: u32,
+        height: u32,
         thickness: u32,
         style: &BoxStyle,
     ) {
@@ -230,6 +238,7 @@ impl ThreeFourView {
             y - thickness as i32 / 2,
             length,
             thickness,
+            height,
             style,
         );
     }
@@ -242,6 +251,7 @@ impl ThreeFourView {
         x: i32,
         y: i32,
         index: usize,
+        height: u32,
         thickness: u32,
         style: &BoxStyle,
     ) {
@@ -254,6 +264,7 @@ impl ThreeFourView {
             y + start,
             thickness,
             length,
+            height,
             style,
         );
     }

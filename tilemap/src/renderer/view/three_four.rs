@@ -95,26 +95,40 @@ impl View for ThreeFourView {
                             style.get_style(),
                         );
                     }
-                    Border::Door(_, id) => {
-                        let style = styles.get_door_style(id);
+                    Border::Door(wall_id, door_id) => {
+                        let wall_style = styles.get_wall_style(wall_id);
+                        let door_style = styles.get_door_style(door_id);
+                        let wall_height = self.tile_height - door_style.get_height();
 
                         self.render_horizontal_border(
                             renderer,
                             &nodes,
                             x,
-                            y + (self.tile_height - style.get_height()) as i32,
+                            y,
                             index,
                             row,
-                            style.get_height(),
-                            style.get_thickness(),
-                            style.get_style(),
+                            wall_height,
+                            wall_style.get_thickness(),
+                            wall_style.get_style(),
+                        );
+
+                        self.render_horizontal_border(
+                            renderer,
+                            &nodes,
+                            x,
+                            y + wall_height as i32,
+                            index,
+                            row,
+                            door_style.get_height(),
+                            door_style.get_thickness(),
+                            door_style.get_style(),
                         );
                     }
                 }
 
                 match tilemap.get_border(index, Side::Left) {
                     Border::NoBorder => {}
-                    Border::Wall(id) => {
+                    Border::Wall(id) | Border::Door(_, id) => {
                         let style = styles.get_wall_style(id);
 
                         self.render_vertical_border(
@@ -125,21 +139,6 @@ impl View for ThreeFourView {
                             y,
                             index,
                             self.tile_height,
-                            style.get_thickness(),
-                            style.get_style(),
-                        );
-                    }
-                    Border::Door(_, id) => {
-                        let style = styles.get_door_style(id);
-
-                        self.render_vertical_border(
-                            renderer,
-                            &nodes,
-                            vertical_size,
-                            x,
-                            y + (self.tile_height - style.get_height()) as i32,
-                            index,
-                            style.get_height(),
                             style.get_thickness(),
                             style.get_style(),
                         );

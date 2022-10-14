@@ -52,7 +52,7 @@ impl View for ThreeFourView {
                             y,
                             self.tile_size.width(),
                             self.tile_size.height(),
-                            styles.get_solid_style(id).get_aab_style(),
+                            styles.get_solid_style(id).get_style(),
                         );
                     }
                 }
@@ -90,7 +90,7 @@ impl View for ThreeFourView {
                             y - thickness as i32 / 2,
                             length,
                             thickness,
-                            style.get_aab_style(),
+                            style.get_style(),
                         );
                     }
                 }
@@ -113,7 +113,7 @@ impl View for ThreeFourView {
                             y + start,
                             thickness,
                             length,
-                            style.get_aab_style(),
+                            style.get_style(),
                         );
                     }
                 }

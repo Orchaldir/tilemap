@@ -7,23 +7,23 @@ use crate::utils::resource::Resource;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct WallStyle {
     name: String,
-    aab: BoxStyle,
+    style: BoxStyle,
     node: NodeId,
     thickness: u32,
 }
 
 impl WallStyle {
-    pub fn new<S: Into<String>>(name: S, aab: BoxStyle, node: NodeId, thickness: u32) -> Self {
+    pub fn new<S: Into<String>>(name: S, style: BoxStyle, node: NodeId, thickness: u32) -> Self {
         WallStyle {
             name: name.into(),
-            aab,
+            style,
             node,
             thickness,
         }
     }
 
-    pub fn get_aab_style(&self) -> &BoxStyle {
-        &self.aab
+    pub fn get_style(&self) -> &BoxStyle {
+        &self.style
     }
 
     pub fn get_node_style(&self) -> NodeId {

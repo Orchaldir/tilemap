@@ -80,7 +80,7 @@ impl TopDownView {
                         *styles.get_floor_style(id).get_floor_color(),
                     ),
                     Tile::Solid(id) => {
-                        let color = styles.get_solid_style(id).get_aab_style().get_top_color();
+                        let color = styles.get_solid_style(id).get_style().get_top_color();
                         self.render_tile(renderer, x, y, *color)
                     }
                 }
@@ -122,7 +122,7 @@ impl TopDownView {
                             x + start,
                             y - thickness as i32 / 2,
                             Size2d::new(length, thickness),
-                            *style.get_aab_style().get_top_color(),
+                            *style.get_style().get_top_color(),
                         )
                     }
                 }
@@ -164,7 +164,7 @@ impl TopDownView {
                             x - thickness as i32 / 2,
                             y + start,
                             Size2d::new(thickness, length),
-                            *style.get_aab_style().get_top_color(),
+                            *style.get_style().get_top_color(),
                         )
                     }
                 }

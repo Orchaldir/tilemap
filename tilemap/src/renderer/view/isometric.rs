@@ -52,7 +52,7 @@ impl View for IsometricView {
                             point,
                             self.delta,
                             self.delta,
-                            style.get_aab_style(),
+                            style.get_style(),
                             (true, true),
                         )
                     }
@@ -97,7 +97,7 @@ impl View for IsometricView {
                             back,
                             Self::calculate_delta(length),
                             Self::calculate_delta(thickness),
-                            style.get_aab_style(),
+                            style.get_style(),
                             (true, false),
                         );
                     }
@@ -125,7 +125,7 @@ impl View for IsometricView {
                             left,
                             Self::calculate_delta(thickness),
                             Self::calculate_delta(length),
-                            style.get_aab_style(),
+                            style.get_style(),
                             (false, true),
                         );
                     }

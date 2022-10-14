@@ -115,28 +115,20 @@ impl TopDownView {
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
-                        let (start, length) =
-                            calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
+                        let color = *style.get_style().get_top_color();
 
-                        renderer.render_rectangle(
-                            x + start,
-                            y - thickness as i32 / 2,
-                            Size2d::new(length, thickness),
-                            *style.get_style().get_top_color(),
-                        )
+                        self.render_horizontal_border(
+                            renderer, nodes, x, y, index, row, thickness, color,
+                        );
                     }
                     Border::Door(_, id) => {
                         let style = styles.get_door_style(*id);
                         let thickness = style.get_thickness();
-                        let (start, length) =
-                            calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
+                        let color = *style.get_style().get_top_color();
 
-                        renderer.render_rectangle(
-                            x + start,
-                            y - thickness as i32 / 2,
-                            Size2d::new(length, thickness),
-                            *style.get_style().get_top_color(),
-                        )
+                        self.render_horizontal_border(
+                            renderer, nodes, x, y, index, row, thickness, color,
+                        );
                     }
                 }
 
@@ -146,6 +138,28 @@ impl TopDownView {
 
             y += self.tile_size.height() as i32;
         }
+    }
+
+    fn render_horizontal_border(
+        &self,
+        renderer: &mut dyn Renderer,
+        nodes: &[Node],
+        x: i32,
+        y: i32,
+        index: usize,
+        row: u32,
+        thickness: u32,
+        color: Color,
+    ) {
+        let (start, length) =
+            calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
+
+        renderer.render_rectangle(
+            x + start,
+            y - thickness as i32 / 2,
+            Size2d::new(length, thickness),
+            color,
+        )
     }
 
     fn render_vertical_borders(
@@ -170,27 +184,19 @@ impl TopDownView {
                     Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
                         let thickness = style.get_thickness();
-                        let (start, length) =
-                            calculate_vertical_border(nodes, self.tile_size.width(), size, index);
+                        let color = *style.get_style().get_top_color();
 
-                        renderer.render_rectangle(
-                            x - thickness as i32 / 2,
-                            y + start,
-                            Size2d::new(thickness, length),
-                            *style.get_style().get_top_color(),
+                        self.render_vertical_border(
+                            renderer, nodes, size, x, y, index, thickness, color,
                         )
                     }
                     Border::Door(_, id) => {
                         let style = styles.get_door_style(*id);
                         let thickness = style.get_thickness();
-                        let (start, length) =
-                            calculate_vertical_border(nodes, self.tile_size.width(), size, index);
+                        let color = *style.get_style().get_top_color();
 
-                        renderer.render_rectangle(
-                            x - thickness as i32 / 2,
-                            y + start,
-                            Size2d::new(thickness, length),
-                            *style.get_style().get_top_color(),
+                        self.render_vertical_border(
+                            renderer, nodes, size, x, y, index, thickness, color,
                         )
                     }
                 }
@@ -201,6 +207,27 @@ impl TopDownView {
 
             y += self.tile_size.height() as i32;
         }
+    }
+
+    fn render_vertical_border(
+        &self,
+        renderer: &mut dyn Renderer,
+        nodes: &[Node],
+        size: Size2d,
+        x: i32,
+        y: i32,
+        index: usize,
+        thickness: u32,
+        color: Color,
+    ) {
+        let (start, length) = calculate_vertical_border(nodes, self.tile_size.width(), size, index);
+
+        renderer.render_rectangle(
+            x - thickness as i32 / 2,
+            y + start,
+            Size2d::new(thickness, length),
+            color,
+        )
     }
 
     fn render_nodes(&self, tilemap: &Tilemap2d, nodes: &[Node], renderer: &mut dyn Renderer) {

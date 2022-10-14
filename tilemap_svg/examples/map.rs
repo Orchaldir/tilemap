@@ -60,7 +60,7 @@ fn create_wall_example() -> Tilemap2d {
 
     tilemap.set_border(23, Side::Left, Border::Wall(0));
     tilemap.set_border(35, Side::Left, Border::Wall(0));
-    tilemap.set_border(47, Side::Left, Border::Wall(0));
+    tilemap.set_border(47, Side::Left, Border::Door(0, 0));
     tilemap.set_border(59, Side::Left, Border::Wall(0));
 
     tilemap.set_border(49, Side::Front, Border::Wall(0));

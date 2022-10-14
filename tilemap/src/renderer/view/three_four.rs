@@ -78,18 +78,31 @@ impl View for ThreeFourView {
 
                 match tilemap.get_border(index, Side::Back) {
                     Border::NoBorder => {}
-                    Border::Wall(id) | Border::Door(id, _) => {
+                    Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
-                        let thickness = style.get_thickness();
-                        let (start, length) =
-                            calculate_horizontal_border(&nodes, self.tile_size.width(), index, row);
 
-                        self.render_aabb(
+                        self.render_horizontal_border(
                             renderer,
-                            x + start,
-                            y - thickness as i32 / 2,
-                            length,
-                            thickness,
+                            &nodes,
+                            x,
+                            y,
+                            index,
+                            row,
+                            style.get_thickness(),
+                            style.get_style(),
+                        );
+                    }
+                    Border::Door(_, id) => {
+                        let style = styles.get_door_style(id);
+
+                        self.render_horizontal_border(
+                            renderer,
+                            &nodes,
+                            x,
+                            y,
+                            index,
+                            row,
+                            style.get_thickness(),
                             style.get_style(),
                         );
                     }
@@ -97,22 +110,31 @@ impl View for ThreeFourView {
 
                 match tilemap.get_border(index, Side::Left) {
                     Border::NoBorder => {}
-                    Border::Wall(id) | Border::Door(id, _) => {
+                    Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
-                        let thickness = style.get_thickness();
-                        let (start, length) = calculate_vertical_border(
-                            &nodes,
-                            self.tile_size.width(),
-                            vertical_size,
-                            index,
-                        );
 
-                        self.render_aabb(
+                        self.render_vertical_border(
                             renderer,
-                            x - thickness as i32 / 2,
-                            y + start,
-                            thickness,
-                            length,
+                            &nodes,
+                            vertical_size,
+                            x,
+                            y,
+                            index,
+                            style.get_thickness(),
+                            style.get_style(),
+                        );
+                    }
+                    Border::Door(_, id) => {
+                        let style = styles.get_door_style(id);
+
+                        self.render_vertical_border(
+                            renderer,
+                            &nodes,
+                            vertical_size,
+                            x,
+                            y,
+                            index,
+                            style.get_thickness(),
                             style.get_style(),
                         );
                     }
@@ -186,6 +208,54 @@ impl ThreeFourView {
 
     fn render_tile(&self, renderer: &mut dyn Renderer, x: i32, y: i32, color: Color) {
         renderer.render_rectangle(x, y, self.tile_size, color)
+    }
+
+    fn render_horizontal_border(
+        &self,
+        renderer: &mut dyn Renderer,
+        nodes: &[Node],
+        x: i32,
+        y: i32,
+        index: usize,
+        row: u32,
+        thickness: u32,
+        style: &BoxStyle,
+    ) {
+        let (start, length) =
+            calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
+
+        self.render_aabb(
+            renderer,
+            x + start,
+            y - thickness as i32 / 2,
+            length,
+            thickness,
+            style,
+        );
+    }
+
+    fn render_vertical_border(
+        &self,
+        renderer: &mut dyn Renderer,
+        nodes: &[Node],
+        vertical_size: Size2d,
+        x: i32,
+        y: i32,
+        index: usize,
+        thickness: u32,
+        style: &BoxStyle,
+    ) {
+        let (start, length) =
+            calculate_vertical_border(nodes, self.tile_size.width(), vertical_size, index);
+
+        self.render_aabb(
+            renderer,
+            x - thickness as i32 / 2,
+            y + start,
+            thickness,
+            length,
+            style,
+        );
     }
 }
 

@@ -112,8 +112,21 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::NoBorder => {}
-                    Border::Wall(id) | Border::Door(id, _) => {
+                    Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
+                        let (start, length) =
+                            calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
+
+                        renderer.render_rectangle(
+                            x + start,
+                            y - thickness as i32 / 2,
+                            Size2d::new(length, thickness),
+                            *style.get_style().get_top_color(),
+                        )
+                    }
+                    Border::Door(_, id) => {
+                        let style = styles.get_door_style(*id);
                         let thickness = style.get_thickness();
                         let (start, length) =
                             calculate_horizontal_border(nodes, self.tile_size.width(), index, row);
@@ -154,8 +167,21 @@ impl TopDownView {
             for _x in 0..size.width() {
                 match &borders[index] {
                     Border::NoBorder => {}
-                    Border::Wall(id) | Border::Door(id, _) => {
+                    Border::Wall(id) => {
                         let style = styles.get_wall_style(*id);
+                        let thickness = style.get_thickness();
+                        let (start, length) =
+                            calculate_vertical_border(nodes, self.tile_size.width(), size, index);
+
+                        renderer.render_rectangle(
+                            x - thickness as i32 / 2,
+                            y + start,
+                            Size2d::new(thickness, length),
+                            *style.get_style().get_top_color(),
+                        )
+                    }
+                    Border::Door(_, id) => {
+                        let style = styles.get_door_style(*id);
                         let thickness = style.get_thickness();
                         let (start, length) =
                             calculate_vertical_border(nodes, self.tile_size.width(), size, index);

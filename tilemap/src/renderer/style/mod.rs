@@ -1,9 +1,10 @@
 use crate::math::color::Color;
+use crate::renderer::style::door::DoorStyle;
 use crate::renderer::style::floor::FloorStyle;
 use crate::renderer::style::node::NodeStyle;
 use crate::renderer::style::solid::SolidStyle;
 use crate::renderer::style::wall::WallStyle;
-use crate::tilemap::style::{FloorId, NodeId, SolidId, WallId};
+use crate::tilemap::style::{DoorId, FloorId, NodeId, SolidId, WallId};
 use crate::utils::resource::ResourceManager;
 
 pub mod aab;
@@ -15,6 +16,7 @@ pub mod wall;
 
 #[derive(Debug)]
 pub struct StyleMgr {
+    doors: ResourceManager<DoorStyle>,
     floors: ResourceManager<FloorStyle>,
     nodes: ResourceManager<NodeStyle>,
     solids: ResourceManager<SolidStyle>,
@@ -25,6 +27,7 @@ pub struct StyleMgr {
 impl StyleMgr {
     /// Many styles per type.
     pub fn new(
+        doors: ResourceManager<DoorStyle>,
         floors: ResourceManager<FloorStyle>,
         nodes: ResourceManager<NodeStyle>,
         solids: ResourceManager<SolidStyle>,
@@ -32,6 +35,7 @@ impl StyleMgr {
         grid: Color,
     ) -> Self {
         StyleMgr {
+            doors,
             floors,
             nodes,
             solids,
@@ -41,6 +45,7 @@ impl StyleMgr {
     }
 
     pub fn without_manager(
+        doors: Vec<DoorStyle>,
         floors: Vec<FloorStyle>,
         nodes: Vec<NodeStyle>,
         solids: Vec<SolidStyle>,
@@ -48,6 +53,7 @@ impl StyleMgr {
         grid: Color,
     ) -> Self {
         Self::new(
+            ResourceManager::with_default(doors),
             ResourceManager::with_default(floors),
             ResourceManager::with_default(nodes),
             ResourceManager::with_default(solids),
@@ -58,6 +64,7 @@ impl StyleMgr {
 
     /// Only one style per type.
     pub fn one_style(
+        door: DoorStyle,
         floor: FloorStyle,
         node: NodeStyle,
         solid: SolidStyle,
@@ -65,12 +72,17 @@ impl StyleMgr {
         grid: Color,
     ) -> Self {
         Self::new(
+            ResourceManager::new(Vec::new(), door),
             ResourceManager::new(Vec::new(), floor),
             ResourceManager::new(Vec::new(), node),
             ResourceManager::new(Vec::new(), solid),
             ResourceManager::new(Vec::new(), wall),
             grid,
         )
+    }
+
+    pub fn get_door_style(&self, id: DoorId) -> &DoorStyle {
+        self.doors.get(id)
     }
 
     pub fn get_floor_style(&self, id: FloorId) -> &FloorStyle {

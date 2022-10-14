@@ -1,3 +1,4 @@
+pub type DoorId = usize;
 pub type NodeId = usize;
 pub type FloorId = usize;
 pub type SolidId = usize;

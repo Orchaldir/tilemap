@@ -50,6 +50,7 @@ impl View for IsometricView {
                         self.render_box(
                             renderer,
                             point,
+                            self.tile_height,
                             self.delta,
                             self.delta,
                             style.get_style(),
@@ -72,6 +73,7 @@ impl View for IsometricView {
                         self.render_box(
                             renderer,
                             back,
+                            self.tile_height,
                             delta_size,
                             delta_size,
                             style.get_style(),
@@ -95,6 +97,7 @@ impl View for IsometricView {
                         self.render_box(
                             renderer,
                             back,
+                            self.tile_height,
                             Self::calculate_delta(length),
                             Self::calculate_delta(thickness),
                             style.get_style(),
@@ -123,6 +126,7 @@ impl View for IsometricView {
                         self.render_box(
                             renderer,
                             left,
+                            self.tile_height,
                             Self::calculate_delta(thickness),
                             Self::calculate_delta(length),
                             style.get_style(),
@@ -195,6 +199,7 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
+        height: i32,
         delta_row: Point2d,
         delta_column: Point2d,
         style: &BoxStyle,
@@ -203,6 +208,7 @@ impl IsometricView {
         self.render_ceiling(
             renderer,
             back,
+            height,
             delta_row,
             delta_column,
             *style.get_top_color(),
@@ -212,6 +218,7 @@ impl IsometricView {
             self.render_front(
                 renderer,
                 back,
+                height,
                 delta_row,
                 delta_column,
                 *style.get_front_color(),
@@ -222,6 +229,7 @@ impl IsometricView {
             self.render_side(
                 renderer,
                 back,
+                height,
                 delta_row,
                 delta_column,
                 *style.get_side_color(),
@@ -234,11 +242,12 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
+        height: i32,
         delta_row: Point2d,
         delta_column: Point2d,
         color: Color,
     ) {
-        let top_back = self.get_top(back);
+        let top_back = self.get_top(back, height);
         renderer.render_transformed_rectangle(
             top_back,
             self.get_left_box(top_back, delta_column),
@@ -253,14 +262,15 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
+        height: i32,
         delta_row: Point2d,
         delta_column: Point2d,
         color: Color,
     ) {
         let left0 = self.get_left_box(back, delta_column);
-        let left1 = self.get_top(left0);
+        let left1 = self.get_top(left0, height);
         let front0 = self.get_front_box(back, delta_row, delta_column);
-        let front1 = self.get_top(front0);
+        let front1 = self.get_top(front0, height);
         renderer.render_transformed_rectangle(left1, left0, front0, front1, color)
     }
 
@@ -269,14 +279,15 @@ impl IsometricView {
         &self,
         renderer: &mut dyn Renderer,
         back: Point2d,
+        height: i32,
         delta_row: Point2d,
         delta_column: Point2d,
         color: Color,
     ) {
         let right0 = self.get_right_box(back, delta_row);
-        let right1 = self.get_top(right0);
+        let right1 = self.get_top(right0, height);
         let front0 = self.get_front_box(back, delta_row, delta_column);
-        let front1 = self.get_top(front0);
+        let front1 = self.get_top(front0, height);
         renderer.render_transformed_rectangle(right0, right1, front1, front0, color)
     }
 
@@ -357,8 +368,8 @@ impl IsometricView {
     }
 
     /// Calculate the equivalent point on the ceiling from any point on the floor.
-    fn get_top(&self, point: Point2d) -> Point2d {
-        Point2d::new(point.x, point.y - self.tile_height)
+    fn get_top(&self, point: Point2d, height: i32) -> Point2d {
+        Point2d::new(point.x, point.y - height)
     }
 
     /// Calculate the difference between the start & end point of a column.

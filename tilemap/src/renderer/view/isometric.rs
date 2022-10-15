@@ -84,24 +84,46 @@ impl View for IsometricView {
 
                 match tilemap.get_border(index, Side::Back) {
                     Border::NoBorder => {}
-                    Border::Wall(id) | Border::Door(id, _) => {
+                    Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
-                        let thickness = style.get_thickness();
-                        let (start, length) =
-                            calculate_horizontal_border(&nodes, self.tile_size, index, row);
-                        let delta_half = Self::calculate_delta(thickness / 2);
-                        let delta_start = Self::calculate_delta(start as u32);
-                        let back = self.get_reverse_left_box(point, delta_half);
-                        let back = self.get_right_box(back, delta_start);
 
-                        self.render_box(
+                        self.render_horizontal_border(
                             renderer,
-                            back,
-                            self.tile_height,
-                            Self::calculate_delta(length),
-                            Self::calculate_delta(thickness),
+                            &nodes,
+                            point,
+                            index,
+                            row,
                             style.get_style(),
-                            (true, false),
+                            self.tile_height,
+                            style.get_thickness(),
+                        );
+                    }
+                    Border::Door(wall_id, door_id) => {
+                        let wall_style = styles.get_wall_style(wall_id);
+                        let door_style = styles.get_door_style(door_id);
+                        let door_height = door_style.get_height() as i32;
+                        let wall_height = self.tile_height - door_height;
+
+                        self.render_horizontal_border(
+                            renderer,
+                            &nodes,
+                            point,
+                            index,
+                            row,
+                            door_style.get_style(),
+                            door_height,
+                            door_style.get_thickness(),
+                        );
+
+                        self.render_horizontal_border(
+                            renderer,
+                            &nodes,
+                            self.get_top(point, door_height),
+                            index,
+                            row,
+                            wall_style.get_style(),
+                            wall_height,
+                            wall_style.get_thickness(),
                         );
                     }
                 }
@@ -181,6 +203,34 @@ impl IsometricView {
             left_to_center + center_to_right,
             center_to_bottom + center_to_top,
         )
+    }
+
+    fn render_horizontal_border(
+        &self,
+        renderer: &mut dyn Renderer,
+        nodes: &[Node],
+        point: Point2d,
+        index: usize,
+        row: u32,
+        style: &BoxStyle,
+        height: i32,
+        thickness: u32,
+    ) {
+        let (start, length) = calculate_horizontal_border(nodes, self.tile_size, index, row);
+        let delta_half = Self::calculate_delta(thickness / 2);
+        let delta_start = Self::calculate_delta(start as u32);
+        let back = self.get_reverse_left_box(point, delta_half);
+        let back = self.get_right_box(back, delta_start);
+
+        self.render_box(
+            renderer,
+            back,
+            height,
+            Self::calculate_delta(length),
+            Self::calculate_delta(thickness),
+            style,
+            (true, false),
+        );
     }
 
     /// Render a tile relative to its back point.

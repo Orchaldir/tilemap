@@ -130,7 +130,7 @@ impl View for IsometricView {
 
                 match tilemap.get_border(index, Side::Left) {
                     Border::NoBorder => {}
-                    Border::Wall(id) | Border::Door(id, _) => {
+                    Border::Wall(id) => {
                         let style = styles.get_wall_style(id);
                         let thickness = style.get_thickness();
                         let border_index = index + row as usize;
@@ -153,6 +153,36 @@ impl View for IsometricView {
                             Self::calculate_delta(length),
                             style.get_style(),
                             (false, true),
+                        );
+                    }
+                    Border::Door(wall_id, door_id) => {
+                        let wall_style = styles.get_wall_style(wall_id);
+                        let door_style = styles.get_door_style(door_id);
+                        let door_height = door_style.get_height() as i32;
+                        let wall_height = self.tile_height - door_height;
+
+                        self.render_vertical_border(
+                            renderer,
+                            &nodes,
+                            vertical_size,
+                            point,
+                            index,
+                            row,
+                            door_height,
+                            door_style.get_thickness(),
+                            door_style.get_style(),
+                        );
+
+                        self.render_vertical_border(
+                            renderer,
+                            &nodes,
+                            vertical_size,
+                            self.get_top(point, door_height),
+                            index,
+                            row,
+                            wall_height,
+                            wall_style.get_thickness(),
+                            wall_style.get_style(),
                         );
                     }
                 }
@@ -230,6 +260,37 @@ impl IsometricView {
             Self::calculate_delta(thickness),
             style,
             (true, false),
+        );
+    }
+
+    fn render_vertical_border(
+        &self,
+        renderer: &mut dyn Renderer,
+        nodes: &[Node],
+        vertical_size: Size2d,
+        point: Point2d,
+        index: usize,
+        row: u32,
+        height: i32,
+        thickness: u32,
+        style: &BoxStyle,
+    ) {
+        let border_index = index + row as usize;
+        let (start, length) =
+            calculate_vertical_border(&nodes, self.tile_size, vertical_size, border_index);
+        let delta_half = Self::calculate_delta(thickness / 2);
+        let delta_start = Self::calculate_delta(start as u32);
+        let left = self.get_reverse_right_box(point, delta_half);
+        let left = self.get_left_box(left, delta_start);
+
+        self.render_box(
+            renderer,
+            left,
+            height,
+            Self::calculate_delta(thickness),
+            Self::calculate_delta(length),
+            style,
+            (false, true),
         );
     }
 
